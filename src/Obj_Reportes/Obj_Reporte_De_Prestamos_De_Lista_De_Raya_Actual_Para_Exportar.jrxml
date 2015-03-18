@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Depositos_A_Bancos_Para_Exportar" pageWidth="612" pageHeight="7200" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8029f220-9e71-4f79-977f-3ca107ccf0ce">
+	<property name="ireport.zoom" value="1.6105100000000019"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[SELECT
+	   tb_empleado.folio as Folio,
+       tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno AS NombreCompleto,
+       tb_establecimiento.nombre AS Establecimiento,
+       tb_Prestamo.Cantidad as Prestamo,
+       CASE WHEN sum(tb_abono.descuento) IS NULL
+				THEN tb_prestamo.cantidad
+			WHEN sum(tb_abono.descuento) >= 0
+				THEN tb_prestamo.cantidad - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1)
+			ELSE 0
+	   END as Saldo,
+	   CASE
+			WHEN sum(tb_abono.descuento) IS NULL
+				THEN tb_prestamo.descuento
+			WHEN tb_prestamo.cantidad - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1) <  tb_prestamo.descuento
+				THEN tb_prestamo.cantidad - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1)
+			WHEN tb_prestamo.cantidad - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1) >=  tb_prestamo.descuento
+				THEN tb_prestamo.descuento
+			ELSE 0
+		END as Descuento_a_Aplicar,
+	   CASE WHEN sum(tb_abono.descuento) IS NULL
+				THEN tb_prestamo.cantidad - tb_prestamo.descuento
+			WHEN tb_prestamo.cantidad - tb_prestamo.descuento - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1) > 0
+				THEN tb_prestamo.cantidad - tb_prestamo.descuento - (select sum(tb_abono.descuento) from tb_abono where tb_abono.folio_empleado = tb_empleado.folio and tb_abono.status=1)
+			ELSE 0
+	   END as Saldo_Nuevo,
+       Case when tb_empleado.status_imss=0
+           then 'Contable'
+           else 'No Contable'
+           end as Status,
+       tb_empleado.imss
+
+ FROM tb_empleado
+inner join tb_establecimiento
+          ON tb_establecimiento.folio=tb_empleado.establecimiento_id
+
+inner join tb_prestamo
+          ON tb_prestamo.folio_empleado=tb_empleado.folio
+          and tb_prestamo.status=1
+left outer join tb_abono
+		  ON tb_abono.folio_empleado = tb_prestamo.folio_empleado
+		  and  tb_abono.status=1
+where tb_empleado.status = 1
+
+GROUP BY tb_empleado.folio ,tb_establecimiento.nombre ,
+       tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno ,
+       tb_prestamo.cantidad,
+       tb_prestamo.descuento,
+       tb_prestamo.cantidad,
+       tb_empleado.status_imss,
+       tb_empleado.imss
+
+Order By 	tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno]]>
+	</queryString>
+	<field name="Folio" class="java.lang.Integer"/>
+	<field name="NombreCompleto" class="java.lang.String"/>
+	<field name="Establecimiento" class="java.lang.String"/>
+	<field name="Prestamo" class="java.math.BigDecimal"/>
+	<field name="Saldo" class="java.math.BigDecimal"/>
+	<field name="Descuento_a_Aplicar" class="java.math.BigDecimal"/>
+	<field name="Saldo_Nuevo" class="java.math.BigDecimal"/>
+	<field name="Status" class="java.lang.String"/>
+	<field name="imss" class="java.lang.String"/>
+	<columnHeader>
+		<band height="13">
+			<staticText>
+				<reportElement uuid="d3e1071f-67cb-4563-aa57-8f619b02a0e9" x="0" y="0" width="51" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Folio Emp.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4228f2d2-0a9e-4683-a1bf-7d08d70940c6" x="51" y="0" width="241" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nombre Completo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="11e4d22b-48ef-443c-bec4-75bef801fa72" x="292" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Prestamo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9bbbd724-e312-4315-aba6-f627f8ae7574" x="362" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Saldo Actual]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b699e24e-7c0c-4f38-91bb-9f1f725a6b7c" x="432" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Descuento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9a7bc400-0024-4bfc-a656-42c787030c0a" x="502" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Saldo Nuevo]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement uuid="98461835-3586-4b11-a15b-1e1a2c78bf9e" x="0" y="0" width="51" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Folio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="16bba8dd-5082-452d-b860-623a432dbc4f" x="51" y="0" width="241" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{NombreCompleto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="083f39d7-6d49-4645-9cd9-af8bca06b97f" x="292" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="565d3652-92bb-496d-adb8-3c8f251dd8bf" x="362" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="6a227cf6-e8e5-4b8b-a653-208c2b96f448" x="432" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Descuento_a_Aplicar}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4c44833e-02c6-4f01-b853-c5e3b293767a" x="502" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo_Nuevo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

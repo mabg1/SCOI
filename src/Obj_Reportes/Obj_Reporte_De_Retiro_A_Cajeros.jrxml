@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Efectivo_Para_Cortes" language="groovy" pageWidth="250" pageHeight="256" columnWidth="210" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0" uuid="1f81344e-8124-4307-847f-1d49169f400a">
+	<property name="ireport.zoom" value="3.215383215000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" mode="Transparent" forecolor="#000000" backcolor="#000000" fontName="Arial" fontSize="26" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="SubTitle" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<queryString>
+		<![CDATA[select folio_retiro
+       ,folio_cajero
+       ,a.nombre+' '+a.ap_paterno+' '+a.ap_materno as cajero
+       ,folio_supervisor
+       ,b.nombre+' '+b.ap_paterno+' '+b.ap_materno as supervisor
+       ,importe_retiro
+       ,minutos_tardo
+       ,convert(varchar(20),fecha,103)as fecha
+
+ from tb_retiros_a_cajeros
+inner join tb_empleado a on a.folio=tb_retiros_a_cajeros.folio_cajero
+inner join tb_empleado b on b.folio=tb_retiros_a_cajeros.folio_supervisor
+where folio_retiro='sii4']]>
+	</queryString>
+	<field name="folio_retiro" class="java.lang.String"/>
+	<field name="folio_cajero" class="java.lang.Integer"/>
+	<field name="cajero" class="java.lang.String"/>
+	<field name="folio_supervisor" class="java.lang.Integer"/>
+	<field name="supervisor" class="java.lang.String"/>
+	<field name="importe_retiro" class="java.math.BigDecimal"/>
+	<field name="minutos_tardo" class="java.lang.Integer"/>
+	<field name="fecha" class="java.lang.String"/>
+	<title>
+		<band height="115" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="104bab70-2afa-4c55-97eb-5e97db737739" style="Title" x="4" y="23" width="145" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="22"/>
+				</textElement>
+				<text><![CDATA[RETIRO A ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9c3189db-55e2-4cf1-9123-94d3f6321cae" style="SubTitle" x="99" y="73" width="98" height="19" forecolor="#000000" backcolor="#000000"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Grupo Izagar]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="2f37aac2-4a87-4d4f-a9e5-b791ef9b9156" x="99" y="90" width="98" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Fecha : "+$F{fecha}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement uuid="27daaee1-8a9c-4790-960f-8cef584a879c" x="149" y="25" width="60" height="50"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\boveda-de-dinero-en-efectivo-de-seguridad-icono-6192-128.jpg"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="5f2cf913-6d6c-4f69-9bb8-cce852adef71" style="Title" x="21" y="49" width="111" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="22"/>
+				</textElement>
+				<text><![CDATA[CAJERO]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="a4934a25-834d-4dde-8bad-54708f136222" positionType="FixRelativeToBottom" x="-1" y="108" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Double" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement uuid="2b324d6e-ac63-4c04-8ba3-6f663247cc62" positionType="FixRelativeToBottom" x="-1" y="112" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Double" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="49">
+			<staticText>
+				<reportElement uuid="35b64049-6c16-4bab-9923-7f7ce415a98a" style="SubTitle" x="111" y="0" width="64" height="19" forecolor="#000000" backcolor="#000000"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Importe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d33186cf-b6e1-49af-96fe-363f80844100" style="SubTitle" x="4" y="0" width="52" height="19" forecolor="#000000" backcolor="#000000"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Folio]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="85e070c4-4c97-42d4-bb4e-2e160dad65de" x="4" y="19" width="82" height="17"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_retiro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="23fd62da-32cf-46a4-82b0-6dee5c1ee48c" x="111" y="19" width="80" height="17"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_retiro}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<pageFooter>
+		<band height="62" splitType="Stretch">
+			<textField>
+				<reportElement uuid="ccbdef8b-5909-4919-8bd3-bfe6a3164344" x="0" y="5" width="210" height="11"/>
+				<textElement textAlignment="Center">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Firma Cajero(a): "+$F{cajero}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="9dee57fe-a927-4ea2-bdcc-4b2dec85a0a2" positionType="FixRelativeToBottom" x="0" y="47" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement uuid="c12fa2f8-2ca4-4273-919e-660bf81eae65" x="0" y="48" width="210" height="10"/>
+				<textElement textAlignment="Center">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" Firma Supervisor(a)"+$F{supervisor}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="5c02acfa-37a3-47d0-ab43-1e062e4a9c06" positionType="FixRelativeToBottom" x="0" y="4" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+</jasperReport>

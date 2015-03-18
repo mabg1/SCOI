@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte  de Depositos Bancos" language="groovy" pageWidth="1080" pageHeight="612" orientation="Landscape" columnWidth="1040" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d877fc95-687e-432b-bc71-4ca9584c39f8">
+	<property name="ireport.callouts" value="callouts.1.fg=0,0,0\n callouts.1.bg=255,255,0\n "/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="6.727499949325665"/>
+	<property name="ireport.x" value="747"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[declare @empleado_consulta varchar(250),@fecha varchar(20)
+  set @fecha='20/12/2014'
+  set @empleado_consulta='MARCO ANTONIO BODART GUZMAN PRUEBA'
+
+
+select a.folio
+       ,a.folio_corte
+       ,a.folio_usuario
+       ,a.realizo_corte
+       ,a.folio_empleado
+       ,a.cajero
+       ,a.folio_establecimiento_de_corte
+       ,a.establecimiento
+       ,a.corte_del_sistema
+       ,a.apartados
+       ,a.tiempo_aire
+       ,a.recibo_de_luz
+       ,a.deposito
+       ,a.efectivo
+       ,a.cheques
+       ,a.total_de_vauchers
+       ,a.importe_voucher
+       ,a.voucher_sin_retiro
+       ,a.retiro_voucher
+       ,a.Retiro_Cajero
+       ,isnull(sum(tb_captura_fuente_sodas.importe),0) as fuente_de_sodas
+       ,a.diferiencia_de_corte
+       ,a.fecha_corte_corta
+       ,a.hora_corte
+       ,a.fecha_de_corte
+       ,a.observacion
+       ,a.status
+       ,a.asignacion
+       ,a.fecha_de_asignacion
+       ,a.fecha_de_liquidacion
+       ,a.empleado_Consulto
+
+     from(
+			SELECT tb_alimentacion_de_cortes.folio
+				  ,tb_alimentacion_de_cortes.folio_corte
+				  ,tb_alimentacion_de_cortes.folio_usuario
+				  ,empleado_realizo_corte.nombre+' '+empleado_realizo_corte.ap_paterno+' '+empleado_realizo_corte.ap_materno as realizo_corte
+				  ,tb_alimentacion_de_cortes.folio_empleado
+				  ,cajero.nombre+' '+cajero.ap_paterno+' '+cajero.ap_materno as cajero
+				  ,tb_alimentacion_de_cortes.folio_establecimiento_de_corte
+				  ,tb_establecimiento.nombre as establecimiento
+				  ,tb_alimentacion_de_cortes.corte_del_sistema
+                  ,tb_alimentacion_de_cortes.apartados
+				  ,tb_alimentacion_de_cortes.tiempo_aire
+				  ,tb_alimentacion_de_cortes.recibo_de_luz
+				  ,tb_alimentacion_de_cortes.deposito
+				  ,tb_alimentacion_de_cortes.efectivo
+				  ,tb_alimentacion_de_cortes.cheques
+				  ,tb_alimentacion_de_cortes.total_de_vauchers
+				  ,isnull(m.importe_voucher,0)as importe_voucher
+				  ,isnull(m.importe_voucher,0)-isnull(m.retiro_voucher,0) as voucher_sin_retiro
+				  ,isnull(m.retiro_voucher,0)as retiro_voucher
+				  ,isnull(sum(tb_retiros_a_cajeros.importe_retiro),0)as Retiro_Cajero
+				  ,tb_alimentacion_de_cortes.diferiencia_de_corte
+				  ,convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte ,103)as fecha_corte_corta
+				  ,convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte ,108)as hora_corte
+				  ,tb_alimentacion_de_cortes.fecha_de_corte
+				  ,tb_alimentacion_de_cortes.observacion
+				  ,tb_alimentacion_de_cortes.status
+				  ,tb_tabla_de_asignaciones_para_cortes.asignacion
+				  ,convert(varchar(15),tb_tabla_de_asignaciones_para_cortes.fecha_de_asignacion ,103)as fecha_de_asignacion
+				  ,convert(varchar(15),tb_tabla_de_asignaciones_para_cortes.fecha_de_liquidacion ,103)as fecha_de_liquidacion
+				  ,@empleado_consulta as empleado_Consulto
+
+
+			  FROM
+			   (select  tb_alimentacion_de_cortes.folio_corte ,isnull(sum(tb_vauchers.importe),0) as importe_voucher,isnull(sum(tb_vauchers.retiro),0) as retiro_voucher
+					   from tb_vauchers inner join tb_alimentacion_de_cortes on tb_vauchers.folio_corte=tb_alimentacion_de_cortes.folio_corte
+					 where convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte,103)=@fecha group by tb_alimentacion_de_cortes.folio_corte)as m
+
+			right outer join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=m.folio_corte
+			inner join tb_empleado as empleado_realizo_corte on empleado_realizo_corte.folio=tb_alimentacion_de_cortes.folio_usuario
+			inner join tb_empleado as cajero on cajero.folio=tb_alimentacion_de_cortes.folio_empleado
+			inner join tb_establecimiento on tb_establecimiento.folio=tb_alimentacion_de_cortes.folio_establecimiento_de_corte
+			inner join tb_tabla_de_asignaciones_para_cortes on tb_tabla_de_asignaciones_para_cortes.folio_corte=tb_alimentacion_de_cortes.folio_corte
+			left outer join tb_retiros_a_cajeros on  tb_retiros_a_cajeros.folio_corte=tb_alimentacion_de_cortes.folio_corte
+
+
+			where convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte,103)=@fecha
+			group by tb_alimentacion_de_cortes.folio_corte
+				  ,tb_alimentacion_de_cortes.folio_empleado      ,tb_alimentacion_de_cortes.folio_establecimiento_de_corte
+				  ,empleado_realizo_corte.nombre                 ,empleado_realizo_corte.ap_paterno     ,empleado_realizo_corte.ap_materno
+				  ,cajero.nombre                                 ,cajero.ap_paterno                     ,cajero.ap_materno
+				  ,tb_alimentacion_de_cortes.folio_usuario       ,tb_alimentacion_de_cortes.apartados
+				  ,tb_establecimiento.nombre                     ,tb_alimentacion_de_cortes.corte_del_sistema
+				  ,tb_alimentacion_de_cortes.tiempo_aire         ,tb_alimentacion_de_cortes.recibo_de_luz
+				  ,tb_alimentacion_de_cortes.deposito            ,tb_alimentacion_de_cortes.efectivo
+				  ,tb_alimentacion_de_cortes.cheques             ,tb_alimentacion_de_cortes.total_de_vauchers
+				  ,tb_alimentacion_de_cortes.diferiencia_de_corte,tb_alimentacion_de_cortes.fecha_de_corte
+				  ,tb_alimentacion_de_cortes.observacion         ,tb_alimentacion_de_cortes.status
+				  ,tb_tabla_de_asignaciones_para_cortes.asignacion,convert(varchar(15),tb_tabla_de_asignaciones_para_cortes.fecha_de_asignacion ,103)
+				  ,convert(varchar(15),tb_tabla_de_asignaciones_para_cortes.fecha_de_liquidacion ,103)
+				  ,m.importe_voucher      ,m.retiro_voucher,tb_alimentacion_de_cortes.folio    		 )a
+
+left outer join tb_captura_fuente_sodas on tb_captura_fuente_sodas.folio_corte=a.folio_corte
+
+group by a.folio_corte
+       ,a.folio_usuario
+       ,a.realizo_corte
+       ,a.folio_empleado
+       ,a.cajero
+       ,a.folio_establecimiento_de_corte
+       ,a.establecimiento
+       ,a.corte_del_sistema
+       ,a.apartados
+       ,a.tiempo_aire
+       ,a.recibo_de_luz
+       ,a.deposito
+       ,a.efectivo
+       ,a.cheques
+       ,a.total_de_vauchers
+       ,a.importe_voucher
+       ,a.voucher_sin_retiro
+       ,a.retiro_voucher
+       ,a.Retiro_Cajero
+       ,a.diferiencia_de_corte
+       ,a.fecha_corte_corta
+       ,a.hora_corte
+       ,a.fecha_de_corte
+       ,a.observacion
+       ,a.status
+       ,a.asignacion
+       ,a.fecha_de_asignacion
+       ,a.fecha_de_liquidacion
+       ,a.empleado_Consulto
+       ,a.folio
+
+
+order by a.establecimiento,a.folio_corte,a.asignacion]]>
+	</queryString>
+	<field name="folio" class="java.lang.Integer"/>
+	<field name="folio_corte" class="java.lang.String"/>
+	<field name="folio_usuario" class="java.lang.Integer"/>
+	<field name="realizo_corte" class="java.lang.String"/>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="cajero" class="java.lang.String"/>
+	<field name="folio_establecimiento_de_corte" class="java.lang.Integer"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="corte_del_sistema" class="java.math.BigDecimal"/>
+	<field name="apartados" class="java.math.BigDecimal"/>
+	<field name="tiempo_aire" class="java.math.BigDecimal"/>
+	<field name="recibo_de_luz" class="java.math.BigDecimal"/>
+	<field name="deposito" class="java.math.BigDecimal"/>
+	<field name="efectivo" class="java.math.BigDecimal"/>
+	<field name="cheques" class="java.math.BigDecimal"/>
+	<field name="total_de_vauchers" class="java.math.BigDecimal"/>
+	<field name="importe_voucher" class="java.math.BigDecimal"/>
+	<field name="voucher_sin_retiro" class="java.math.BigDecimal"/>
+	<field name="retiro_voucher" class="java.math.BigDecimal"/>
+	<field name="Retiro_Cajero" class="java.math.BigDecimal"/>
+	<field name="fuente_de_sodas" class="java.math.BigDecimal"/>
+	<field name="diferiencia_de_corte" class="java.math.BigDecimal"/>
+	<field name="fecha_corte_corta" class="java.lang.String"/>
+	<field name="hora_corte" class="java.lang.String"/>
+	<field name="fecha_de_corte" class="java.sql.Timestamp"/>
+	<field name="observacion" class="java.lang.String"/>
+	<field name="status" class="java.lang.Integer"/>
+	<field name="asignacion" class="java.lang.String"/>
+	<field name="fecha_de_asignacion" class="java.lang.String"/>
+	<field name="fecha_de_liquidacion" class="java.lang.String"/>
+	<field name="empleado_Consulto" class="java.lang.String"/>
+	<title>
+		<band height="9" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="2" width="1040" height="7" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="cd1a2a38-5d1f-4178-a328-b0a941af3e54"/>
+				<staticText>
+					<reportElement style="Column header" x="0" y="0" width="43" height="7" forecolor="#000000" uuid="240627b3-5fe1-49f4-b72e-10457771d5ab"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[FolioCorte]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="43" y="0" width="44" height="7" forecolor="#000000" uuid="7ae08def-8180-40a1-8b2b-2a0bbcc00e24"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Asignacion]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="142" y="0" width="84" height="7" forecolor="#000000" uuid="3f38a877-e0f1-4e27-9e54-34f9b2bf6cca"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Nombre Cajero]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="226" y="0" width="27" height="7" forecolor="#000000" uuid="516af39b-cf18-4cd9-a326-b7add40f498b"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Corte Sist.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="584" y="0" width="34" height="7" forecolor="#000000" uuid="a8359f82-6490-4e9f-8d75-143d27371a4f"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Luz]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="421" y="0" width="43" height="7" forecolor="#000000" uuid="3e5aeb29-a470-4cb2-8408-33c87511c412"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Fte Sodas]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="282" y="0" width="45" height="7" forecolor="#000000" uuid="08257601-2a75-49d2-b348-e11404891e71"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Retiro Caj]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="327" y="0" width="45" height="7" forecolor="#000000" uuid="eaa7d541-b18e-413c-915c-0ef960be177b"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Efectivo Caj]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="372" y="0" width="49" height="7" forecolor="#000000" uuid="36d6c78b-5ac1-4425-985d-255aab05a765"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Cheques]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="654" y="0" width="28" height="7" forecolor="#000000" uuid="24b87bc5-f4e7-49d1-aba0-bd04fcec6b14"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Tot.Vouch]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="508" y="0" width="38" height="7" forecolor="#000000" uuid="5f87a319-768c-4f10-b113-102e6fb935aa"/>
+					<textElement textAlignment="Right">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Dif Corte]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="87" y="0" width="43" height="7" forecolor="#000000" uuid="b137d2d1-0df6-4c9a-9eb9-07ad9ffe8f2a"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[FechaLiq]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="464" y="0" width="44" height="7" forecolor="#000000" uuid="e837f651-aea8-44eb-a5e0-4799358faf2f"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Vouc/SRet]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="618" y="0" width="36" height="7" forecolor="#000000" uuid="257e83e0-ba7f-4acb-9c5d-bfb187158749"/>
+					<textElement textAlignment="Right">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[RetiroClien]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="253" y="0" width="29" height="7" forecolor="#000000" uuid="a3ad07f2-c6c9-4728-adab-527f22ff9e64"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Apartados]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="130" y="0" width="12" height="7" forecolor="#000000" uuid="d7bf1715-16b0-4c7b-8ba7-92f5c9247564"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Folio C.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="682" y="0" width="27" height="7" forecolor="#000000" uuid="47f41b8c-a84c-40d5-b84c-766617da6646"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Deposito]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="709" y="0" width="46" height="7" forecolor="#000000" uuid="887d00ec-1b8a-4964-8c85-aae27327c37e"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Establecimiento]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="755" y="0" width="26" height="7" forecolor="#000000" uuid="05dab833-7e1e-43d0-b38e-a11e4dafeb41"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Hora]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="781" y="0" width="166" height="7" forecolor="#000000" uuid="e87c6f00-3e2e-4759-9ee9-a7a769cb765f"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Observacion]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="947" y="0" width="93" height="7" forecolor="#000000" uuid="7b9b40f2-59c7-4571-b9c7-3439419a657e"/>
+					<textElement textAlignment="Center">
+						<font size="6" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Realizo Corte]]></text>
+				</staticText>
+			</frame>
+			<staticText>
+				<reportElement style="Column header" x="546" y="2" width="38" height="7" forecolor="#000000" uuid="45733b54-cc03-4cbe-bd1e-c5f13df89abb"/>
+				<textElement textAlignment="Center">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[TA]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="8" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="1040" height="8" uuid="f5d31a52-71fc-4bad-8353-894631688bdc"/>
+				<textField>
+					<reportElement x="0" y="0" width="43" height="8" uuid="0b73c9bc-5d8a-45be-bc56-41a18e8ffa51"/>
+					<textElement textAlignment="Left">
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_corte}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="43" y="0" width="44" height="8" uuid="b1b5eb40-886d-44a8-843f-b6556f4d0688"/>
+					<textElement textAlignment="Left">
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{asignacion}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="130" y="0" width="12" height="8" uuid="6bb97500-e303-400f-a775-471ab28a79af"/>
+					<textElement textAlignment="Left">
+						<font size="4"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="142" y="0" width="84" height="8" uuid="51aec457-8f60-4e7f-a8a3-f167741b2c5b"/>
+					<textElement textAlignment="Left">
+						<font size="4"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cajero}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="226" y="0" width="27" height="8" uuid="d5efa303-9210-472f-8578-a60cfad30a60"/>
+					<textElement textAlignment="Right">
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{corte_del_sistema}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.0;-###0.0" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="546" y="0" width="38" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="07a63755-a95e-470d-85e2-348998a44bca"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tiempo_aire}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="584" y="0" width="34" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="39133375-6035-4f42-bb59-9540299ee494"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{recibo_de_luz}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="618" y="0" width="36" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="79a8a4f3-31c4-46f0-bf34-5b6b49b9faf6"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{retiro_voucher}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="682" y="0" width="27" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="548fa29e-dc52-4fcf-bf08-ec66eb3d5a65"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{deposito}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="327" y="0" width="45" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="f628e07d-2c3a-4e2f-81a5-02cca4e3ff25"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{efectivo}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="282" y="0" width="45" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="562ed677-e284-4e89-b493-337acb3d11d1"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Retiro_Cajero}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="372" y="0" width="49" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="7eed2dce-f1b4-4ed3-833b-cf651378e4a2"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cheques}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="654" y="0" width="28" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="0198c3cb-be23-4020-8c05-fc5124edb025"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{total_de_vauchers}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="508" y="0" width="38" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="b4928712-73ff-4b1b-b08b-dee366edf570"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{diferiencia_de_corte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="87" y="0" width="43" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="96ae2651-7602-4238-a0e2-43736e3fa57e"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_de_liquidacion}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="464" y="0" width="44" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="bd78757b-eb33-4ac5-84d5-daa2f3ded49f"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{voucher_sin_retiro}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="421" y="0" width="43" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="206fef39-805d-4f30-ac9e-ca93ca72d118"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fuente_de_sodas}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="253" y="0" width="29" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="22748c59-69a7-471b-b751-d35139574b4b"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{apartados}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement style="SubTitle" isPrintRepeatedValues="false" mode="Transparent" x="709" y="0" width="46" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="38a3224f-f8ba-4d04-bf56-9a222b10a10b"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="4" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="781" y="0" width="166" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="433225d1-9924-40f5-abb0-8f035bc4091c"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="4" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{observacion}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="947" y="0" width="93" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="09b4dc01-8449-4981-ba0c-ffa5d8d1b4ca"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="4" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{realizo_corte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="755" y="0" width="26" height="8" forecolor="#000000" backcolor="#FFFFFF" uuid="7550c311-f581-43c8-8f79-104d67b74628"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{hora_corte}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Coffee_Landscape" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9cdd1998-3730-4efb-880f-5dd53786ab2f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="2.3579476910000063"/>
+	<property name="ireport.x" value="53"/>
+	<property name="ireport.y" value="802"/>
+	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#E6DAC3"/>
+		</conditionalStyle>
+	</style>
+	<subDataset name="Dataset1" uuid="07ef7170-b2c7-40e2-aaa4-2ba92ee6fb11">
+		<queryString>
+			<![CDATA[DECLARE @nombre VARCHAR(100), @posicion_espacio INT
+
+SET @nombre = (SELECT tb_empleado.nombre AS nombre   FROM tb_empleado  WHERE tb_empleado.folio=(SELECT uno FROM tb_ids))
+SET @posicion_espacio = CHARINDEX ( ' ',@nombre)
+IF(@posicion_espacio)<>0
+	BEGIN
+		set @nombre=(SELECT SUBSTRING ( @nombre ,1 , @posicion_espacio-1))
+	END;
+SELECT
+    	@nombre + ' ' + tb_empleado.ap_paterno AS nombre
+	   ,tb_puesto.nombre AS puesto
+       ,tb_establecimiento.nombre AS establecimiento
+       ,tb_empleado.folio
+       FROM tb_empleado
+left join tb_puesto on tb_puesto.folio = tb_empleado.puesto_id
+left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+WHERE tb_empleado.folio=(SELECT uno FROM tb_ids)]]>
+		</queryString>
+		<field name="nombre" class="java.lang.String"/>
+		<field name="puesto" class="java.lang.String"/>
+		<field name="establecimiento" class="java.lang.String"/>
+		<field name="folio" class="java.lang.Integer"/>
+		<group name="nombre">
+			<groupExpression><![CDATA[$F{nombre}]]></groupExpression>
+		</group>
+		<group name="puesto">
+			<groupExpression><![CDATA[$F{puesto}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="Dataset2" uuid="be51ec46-8265-4bba-8b4e-9840559a880a">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Conector_a_SQL_2005"/>
+		<queryString>
+			<![CDATA[DECLARE @nombre VARCHAR(100), @posicion_espacio INT
+
+SET @nombre = (SELECT tb_empleado.nombre AS nombre   FROM tb_empleado  WHERE tb_empleado.folio=(SELECT dos FROM tb_ids))
+SET @posicion_espacio = CHARINDEX ( ' ',@nombre)
+IF(@posicion_espacio)<>0
+	BEGIN
+		set @nombre=(SELECT SUBSTRING ( @nombre ,1 , @posicion_espacio-1))
+	END;
+SELECT
+    	@nombre + ' ' + tb_empleado.ap_paterno AS nombre
+	   ,tb_puesto.nombre AS puesto
+       ,tb_establecimiento.nombre AS establecimiento
+       ,tb_empleado.folio
+       FROM tb_empleado
+left join tb_puesto on tb_puesto.folio = tb_empleado.puesto_id
+left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+WHERE tb_empleado.folio=(SELECT dos FROM tb_ids)]]>
+		</queryString>
+		<field name="nombre" class="java.lang.String"/>
+		<field name="puesto" class="java.lang.String"/>
+		<field name="establecimiento" class="java.lang.String"/>
+		<field name="folio" class="java.lang.Integer"/>
+		<group name="nombre">
+			<groupExpression><![CDATA[$F{nombre}]]></groupExpression>
+		</group>
+		<group name="puesto">
+			<groupExpression><![CDATA[$F{puesto}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="Dataset3" uuid="5bff4e9e-48ea-4b46-aad5-9184aebde57d">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Conector_a_SQL_2005"/>
+		<queryString>
+			<![CDATA[DECLARE @nombre VARCHAR(100), @posicion_espacio INT
+
+SET @nombre = (SELECT tb_empleado.nombre AS nombre   FROM tb_empleado  WHERE tb_empleado.folio=(SELECT tres FROM tb_ids))
+SET @posicion_espacio = CHARINDEX ( ' ',@nombre)
+IF(@posicion_espacio)<>0
+	BEGIN
+		set @nombre=(SELECT SUBSTRING ( @nombre ,1 , @posicion_espacio-1))
+	END;
+SELECT
+    	@nombre + ' ' + tb_empleado.ap_paterno AS nombre
+	   ,tb_puesto.nombre AS puesto
+       ,tb_establecimiento.nombre AS establecimiento
+       FROM tb_empleado
+left join tb_puesto on tb_puesto.folio = tb_empleado.puesto_id
+left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+WHERE tb_empleado.folio=(SELECT tres FROM tb_ids)]]>
+		</queryString>
+		<field name="nombre" class="java.lang.String"/>
+		<field name="puesto" class="java.lang.String"/>
+		<group name="nombre">
+			<groupExpression><![CDATA[$F{nombre}]]></groupExpression>
+		</group>
+		<group name="puesto">
+			<groupExpression><![CDATA[$F{puesto}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="Dataset4" uuid="db416fe1-afdc-49f5-aef2-2e5d1325dec5">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Conector_a_SQL_2005"/>
+		<queryString>
+			<![CDATA[DECLARE @nombre VARCHAR(100), @posicion_espacio INT
+
+SET @nombre = (SELECT tb_empleado.nombre AS nombre   FROM tb_empleado  WHERE tb_empleado.folio=(SELECT cuatro FROM tb_ids))
+SET @posicion_espacio = CHARINDEX ( ' ',@nombre)
+IF(@posicion_espacio)<>0
+	BEGIN
+		set @nombre=(SELECT SUBSTRING ( @nombre ,1 , @posicion_espacio-1))
+	END;
+SELECT
+    	@nombre + ' ' + tb_empleado.ap_paterno AS nombre
+	   ,tb_puesto.nombre AS puesto
+       ,tb_establecimiento.nombre AS establecimiento
+       FROM tb_empleado
+left join tb_puesto on tb_puesto.folio = tb_empleado.puesto_id
+left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+WHERE tb_empleado.folio=(SELECT cuatro FROM tb_ids)]]>
+		</queryString>
+		<field name="nombre" class="java.lang.String"/>
+		<field name="puesto" class="java.lang.String"/>
+		<group name="nombre">
+			<groupExpression><![CDATA[$F{nombre}]]></groupExpression>
+		</group>
+		<group name="puesto">
+			<groupExpression><![CDATA[$F{puesto}]]></groupExpression>
+		</group>
+	</subDataset>
+	<queryString>
+		<![CDATA[DECLARE @nombre VARCHAR(100), @posicion_espacio INT
+
+SET @nombre = (SELECT tb_empleado.nombre AS nombre   FROM tb_empleado  WHERE tb_empleado.folio=(SELECT tres FROM tb_ids))
+SET @posicion_espacio = CHARINDEX ( ' ',@nombre)
+IF(@posicion_espacio)<>0
+	BEGIN
+		set @nombre=(SELECT SUBSTRING ( @nombre ,1 , @posicion_espacio-1))
+	END;
+SELECT
+    	@nombre + ' ' + tb_empleado.ap_paterno AS nombre
+	   ,tb_puesto.nombre AS puesto
+       ,tb_establecimiento.nombre AS establecimiento
+       FROM tb_empleado
+left join tb_puesto on tb_puesto.folio = tb_empleado.puesto_id
+left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+WHERE tb_empleado.folio=(SELECT tres FROM tb_ids)]]>
+	</queryString>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="puesto" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{nombre}]]></groupExpression>
+	</group>
+	<group name="Group2">
+		<groupExpression><![CDATA[$F{puesto}]]></groupExpression>
+	</group>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<summary>
+		<band height="530" splitType="Stretch">
+			<image>
+				<reportElement mode="Transparent" x="0" y="0" width="169" height="260" uuid="c4c4db3a-9b50-48e0-86ce-00517d1b4371"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/gafete.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="50" y="30" width="80" height="20" forecolor="#000000" uuid="e2481b57-7e5f-4d0b-b2ee-f7f0e37d2a89"/>
+				<textElement>
+					<font fontName="Arial Black" isBold="false"/>
+				</textElement>
+				<text><![CDATA[LE ATIENDE:]]></text>
+			</staticText>
+			<image scaleImage="FillFrame" isUsingCache="true">
+				<reportElement x="48" y="50" width="80" height="80" forecolor="#000000" uuid="aa55dc7e-56d0-408b-967c-c1b95be2b05a"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<imageExpression><![CDATA["C:/SCOI/AssetGafete/Users_Images/1.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" isUsingCache="true">
+				<reportElement positionType="Float" x="6" y="183" width="160" height="40" uuid="7db0d33f-bf38-42ac-b38b-70ed5d7dfbe7"/>
+				<imageExpression><![CDATA["C:/SCOI/AssetGafete/Codigos_Barras/1.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement mode="Transparent" x="-1" y="270" width="169" height="260" uuid="b99dd53d-b109-47bf-8686-fbf8d0ab7525"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/gafete.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="170" y="270" width="170" height="260" uuid="32193721-5eaf-43c6-bf48-cdc7dd2ef1a0"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/gafeteMisionConFondo.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" isUsingCache="true">
+				<reportElement positionType="Float" x="3" y="453" width="160" height="40" uuid="c74659d1-8bd1-442d-8605-91b21781baf9"/>
+				<imageExpression><![CDATA["C:/SCOI/AssetGafete/Codigos_Barras/2.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" isUsingCache="true">
+				<reportElement x="48" y="320" width="80" height="80" forecolor="#000000" uuid="b70d7295-46b7-4b76-a6d9-06c707ece63d"/>
+				<box>
+					<pen lineWidth="2.0" lineStyle="Solid"/>
+				</box>
+				<imageExpression><![CDATA["C:/SCOI/AssetGafete/Users_Images/2.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="170" y="0" width="170" height="260" uuid="1260fba5-56d0-478a-a1f0-941e0abafd13"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/gafeteMisionConFondo.png"]]></imageExpression>
+			</image>
+			<componentElement>
+				<reportElement x="2" y="13" width="338" height="167" uuid="da455d4d-56bf-4b35-af82-ee60c6339d25"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="Dataset1" uuid="b237e169-4076-40a8-8eb2-d1c78816cb54">
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="167" width="338">
+						<textField isStretchWithOverflow="true">
+							<reportElement x="0" y="117" width="167" height="20" uuid="727e4bde-6149-4c9d-a97f-5b7aed672846"/>
+							<textElement textAlignment="Center">
+								<font fontName="Arial Black" size="12" isBold="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement x="0" y="137" width="167" height="30" forecolor="#000000" backcolor="#0000FF" uuid="a2e8f5c2-1aa7-4362-a6b2-47adf45b4599"/>
+							<textElement textAlignment="Center">
+								<font fontName="Arial Black" size="9" isBold="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{puesto}]]></textFieldExpression>
+						</textField>
+						<textField>
+							<reportElement x="232" y="4" width="100" height="27" forecolor="#FFFFFF" uuid="4dd1a632-4711-47a8-926e-5d3e2421dae6"/>
+							<textElement textAlignment="Right">
+								<font size="18"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{folio}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+			<staticText>
+				<reportElement x="48" y="300" width="80" height="20" forecolor="#000000" uuid="588b82d6-8dc2-4a85-9118-446e2605a59d"/>
+				<textElement>
+					<font fontName="Arial Black" isBold="false"/>
+				</textElement>
+				<text><![CDATA[LE ATIENDE:]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement x="0" y="287" width="340" height="163" uuid="1164e6cd-83cb-46f9-9412-21e8c5941656"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="Dataset2" uuid="72a89a27-e800-479c-b637-d2e751b33d07">
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="163" width="340">
+						<textField>
+							<reportElement x="0" y="113" width="167" height="20" uuid="77d0dd68-58e6-4216-860a-de369354354a"/>
+							<textElement textAlignment="Center">
+								<font fontName="Arial Black" size="12" isBold="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression>
+						</textField>
+						<textField>
+							<reportElement x="0" y="133" width="167" height="30" uuid="269669db-c1b2-4a4e-8af7-c11f3706b259"/>
+							<textElement textAlignment="Center">
+								<font fontName="Arial Black" size="9" isBold="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{puesto}]]></textFieldExpression>
+						</textField>
+						<textField>
+							<reportElement x="234" y="0" width="100" height="25" forecolor="#FFFFFF" uuid="8157fceb-f6f5-444b-b6e3-506518acd42e"/>
+							<textElement textAlignment="Right">
+								<font size="18"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{folio}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+			<rectangle>
+				<reportElement x="0" y="213" width="169" height="13" forecolor="#FFFFFF" uuid="62a2843b-1f2a-4e60-a38b-e51328d7bd05"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="-1" y="485" width="169" height="7" forecolor="#FFFFFF" uuid="720b8541-1db7-443b-829c-28a81f8c6fa8"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="-3" y="485" width="171" height="13" forecolor="#FFFFFF" uuid="11f5e822-52eb-437f-9cd0-ad404dee39e1"/>
+			</rectangle>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte  de Depositos Bancos" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d877fc95-687e-432b-bc71-4ca9584c39f8">
+	<property name="ireport.callouts" value="callouts.1.fg=0,0,0\n callouts.1.bg=255,255,0\n "/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="1.7715610000000017"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[select  tb_empleado.folio as folio_empleado
+       ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as empleado
+       ,tb_establecimiento.nombre as establecimiento
+       ,tb_sueldo.sueldo
+       ,tb_bono.bono
+       ,infonavit
+       ,(select max(numero_lista)+1 from tb_lista_raya)  as lista_de_raya
+       ,(select convert(varchar(15),fecha_lista_raya_pasada+1,103) from tb_configuracion_sistema) as fecha_inicial_lista_raya
+       ,(select convert(varchar(15),fecha_lista_raya_pasada+7,103) from tb_configuracion_sistema) as fecha_final_lista_raya
+       ,'Empleados Con Infonavit De Lista De Raya Actual' as reporte
+
+from tb_empleado
+inner join tb_sueldo on tb_sueldo.folio=tb_empleado.sueldo_id
+left outer join tb_bono on tb_bono.folio=tb_empleado.bono_id
+left outer join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+where tb_empleado.status=1 and infonavit>0]]>
+	</queryString>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="empleado" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="sueldo" class="java.lang.Double"/>
+	<field name="bono" class="java.lang.Double"/>
+	<field name="infonavit" class="java.math.BigDecimal"/>
+	<field name="lista_de_raya" class="java.lang.Integer"/>
+	<field name="fecha_inicial_lista_raya" class="java.lang.String"/>
+	<field name="fecha_final_lista_raya" class="java.lang.String"/>
+	<field name="reporte" class="java.lang.String"/>
+	<title>
+		<band height="56" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="459" height="40" backcolor="#000099" uuid="c7737351-b4be-4035-8f50-aa9b2f0bed14"/>
+				<staticText>
+					<reportElement x="4" y="27" width="115" height="13" forecolor="#FFFFFF" uuid="17356d9f-b881-4264-9294-aa83249b42c3"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Periodo Lista Raya  de:]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="119" y="27" width="145" height="13" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="169e72ee-cd27-4e68-8ea2-83c0481aa5bd"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_inicial_lista_raya}+" al "+$F{fecha_final_lista_raya}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="321" y="27" width="63" height="13" forecolor="#FFFFFF" uuid="804483bd-59ca-49d4-b51a-33215e4544e4"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Lista Raya #:]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="384" y="27" width="60" height="13" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="74a2412a-ffa6-4003-b404-c808c5316f59"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{lista_de_raya}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="2" y="1" width="457" height="39" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="88aef18c-153c-42ff-81ab-e41d23df6d35"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="20" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{reporte}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement x="518" y="0" width="39" height="40" uuid="123567b0-f54f-4428-afb5-e8854989bcb3"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/logPrincipal.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="459" y="1" width="69" height="27" uuid="f8b25804-8e54-46c8-aefa-b27013fb87a1"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\infonavit.jpg"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="76" y="42" width="115" height="13" forecolor="#000000" backcolor="#000000" uuid="a663b552-3292-4b54-b34b-15815fd61576"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre Completo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="475" y="42" width="43" height="13" forecolor="#000000" backcolor="#000000" uuid="eb7b269e-1899-4756-b151-9c41408914d2"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Infonavit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="436" y="42" width="39" height="13" forecolor="#000000" backcolor="#000000" uuid="a5ac2de6-5fa5-430e-a7c8-d8ca7871be91"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bono]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="391" y="42" width="45" height="13" forecolor="#000000" backcolor="#000000" uuid="ef7fcc85-9986-4168-8789-15774eef4f65"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sueldo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="291" y="42" width="100" height="13" forecolor="#000000" backcolor="#000000" uuid="703a81f4-cee5-41f9-8607-a76f722753f1"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Establecimiento]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="13" uuid="f5d31a52-71fc-4bad-8353-894631688bdc"/>
+				<textField>
+					<reportElement x="0" y="0" width="32" height="12" uuid="3b8f74a4-ce6c-48e1-86dc-96ea178c1654"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="32" y="0" width="259" height="12" uuid="838cea11-d30f-4921-b366-2c137fd32bf9"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="391" y="0" width="45" height="12" uuid="2059087b-c263-49c6-add9-3f3b89115210"/>
+					<textElement textAlignment="Right">
+						<font size="9" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sueldo}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="436" y="0" width="39" height="12" uuid="3bd52be3-0c00-4e18-8208-8e3aba928954"/>
+					<textElement textAlignment="Right">
+						<font size="9" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{bono}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="291" y="0" width="100" height="12" uuid="11a13afe-3ff0-4f5b-b6e4-107907b53187"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="475" y="0" width="40" height="12" uuid="5a737b35-0674-48a0-a722-71a5a8379bdb"/>
+					<textElement textAlignment="Right">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{infonavit}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="13" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="2" y="0" width="555" height="11" forecolor="#D0B48E" backcolor="#FF6600" uuid="6719fe6d-0b33-49a7-be3b-2617f6bff25f"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="513" y="0" width="40" height="10" forecolor="#FFFFFF" uuid="4a1881df-13f1-4ce0-94df-56a56c13ad20"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="433" y="0" width="80" height="10" forecolor="#FFFFFF" uuid="f3a02f90-418c-47eb-8bfe-1bef5b67c98b"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="2" y="1" width="197" height="10" forecolor="#FFFFFF" uuid="5328dd8c-f2bd-4276-bd69-500e4f5ad7d2"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="5"/>
+	</summary>
+</jasperReport>

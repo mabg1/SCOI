@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Ticket_C_Ahorro_Cte" language="groovy" pageWidth="210" pageHeight="760" columnWidth="210" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="c5d3ef7e-2023-4702-a5da-9686000435e0">
+	<property name="ireport.zoom" value="3.452271214393105"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="192"/>
+	<queryString>
+		<![CDATA[declare @folio_abono varchar(20), @folio_ticket varchar(20)
+
+set @folio_abono ='SV3756';
+set @folio_ticket = (select ticket from  tb_captura_abono_c_ahorro_cte where folio_abono = @folio_abono);
+--SV0000003758
+--SV0000003754
+
+select * from (select tb_clientes.folio_cliente as folio_cliente,
+						tb_clientes.nombre+' '+tb_clientes.ap_paterno+' '+tb_clientes.ap_materno as cliente,
+						tb_captura_tickets_c_ahorro_cte.ticket as ticket,
+						tb_captura_abono_c_ahorro_cte.folio_abono as folio_abono,
+						tb_captura_abono_c_ahorro_cte.fecha_abono as fecha_abono,
+						convert(varchar(20),tb_captura_tickets_c_ahorro_cte.fecha_inicial,103) as fecha_ticket,
+						convert(varchar(20),tb_captura_tickets_c_ahorro_cte.fecha_limite,103) as fecha_limite,
+						tb_captura_abono_c_ahorro_cte.cantidad as cantidad,
+						tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as empleado,
+						tb_establecimiento.nombre as establecimiento,
+						tb_establecimiento.domicilio as domicilio,
+						tb_establecimiento.razon_social as razon_social,
+						tb_establecimiento.rfc as rfc,
+						tb_establecimiento.telefono as telefono
+				from tb_captura_tickets_c_ahorro_cte
+				inner join tb_clientes on tb_clientes.folio_cliente = tb_captura_tickets_c_ahorro_cte.folio_cliente
+				inner join tb_captura_abono_c_ahorro_cte on tb_captura_abono_c_ahorro_cte.ticket = tb_captura_tickets_c_ahorro_cte.ticket and tb_captura_abono_c_ahorro_cte.status<>'L'
+				inner join tb_empleado on tb_empleado.folio = tb_captura_tickets_c_ahorro_cte.usuario_registro
+				inner join tb_establecimiento on tb_establecimiento.folio = tb_captura_tickets_c_ahorro_cte.cod_establecimiento
+				where tb_captura_tickets_c_ahorro_cte.ticket = @folio_ticket
+				and tb_captura_tickets_c_ahorro_cte.status='V'
+
+				union (select tb_clientes.folio_cliente as folio_cliente,
+												tb_clientes.nombre+' '+tb_clientes.ap_paterno+' '+tb_clientes.ap_materno as cliente,
+												tb_captura_tickets_c_ahorro_cte.ticket as ticket,
+												tb_captura_abono_c_ahorro_cte.folio_abono as folio_abono,
+												tb_captura_abono_c_ahorro_cte.fecha_cancelacion as fecha_abono,
+												convert(varchar(20),tb_captura_tickets_c_ahorro_cte.fecha_inicial,103) as fecha_ticket,
+												convert(varchar(20),tb_captura_tickets_c_ahorro_cte.fecha_limite,103) as fecha_limite,
+												(tb_captura_abono_c_ahorro_cte.cantidad*-1) as cantidad,
+												tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as empleado,
+												tb_establecimiento.nombre as establecimiento,
+												tb_establecimiento.domicilio as domicilio,
+												tb_establecimiento.razon_social as razon_social,
+												tb_establecimiento.rfc as rfc,
+												tb_establecimiento.telefono as telefono
+										from tb_captura_tickets_c_ahorro_cte
+										inner join tb_clientes on tb_clientes.folio_cliente = tb_captura_tickets_c_ahorro_cte.folio_cliente
+										inner join tb_captura_abono_c_ahorro_cte on tb_captura_abono_c_ahorro_cte.ticket = tb_captura_tickets_c_ahorro_cte.ticket and tb_captura_abono_c_ahorro_cte.status='C'
+										inner join tb_empleado on tb_empleado.folio = tb_captura_tickets_c_ahorro_cte.usuario_registro
+										inner join tb_establecimiento on tb_establecimiento.folio = tb_captura_tickets_c_ahorro_cte.cod_establecimiento
+										where tb_captura_tickets_c_ahorro_cte.ticket = @folio_ticket
+										and tb_captura_tickets_c_ahorro_cte.status='V')
+								) a
+					order by a.fecha_abono desc
+
+]]>
+	</queryString>
+	<field name="folio_cliente" class="java.lang.Integer"/>
+	<field name="cliente" class="java.lang.String"/>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="folio_abono" class="java.lang.String"/>
+	<field name="fecha_abono" class="java.sql.Timestamp"/>
+	<field name="fecha_ticket" class="java.lang.String"/>
+	<field name="fecha_limite" class="java.lang.String"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="empleado" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="domicilio" class="java.lang.String"/>
+	<field name="razon_social" class="java.lang.String"/>
+	<field name="rfc" class="java.lang.String"/>
+	<field name="telefono" class="java.lang.String"/>
+	<variable name="total_de_acumulado" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="69" splitType="Stretch">
+			<image>
+				<reportElement uuid="0b448697-ee5c-4abd-8906-b035e985c4dd" x="150" y="27" width="51" height="42"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\ticket_ahorro_cte.jpg"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="262033e6-86e8-4771-b797-ca370a253687" x="12" y="5" width="189" height="64"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Abonos de Cliente a Detalle]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="59" splitType="Stretch">
+			<textField>
+				<reportElement uuid="3aa3aab4-32dc-4cf2-b74a-fee280d35567" x="12" y="8" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TIENDA:  "+$F{establecimiento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="da9ad3d4-6629-427d-ade0-18b805aba331" x="106" y="41" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha: "+$F{fecha_abono}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="36b97f23-5b20-424f-a713-b0949da8c63f" x="12" y="0" width="189" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{razon_social}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4a14144b-4133-4903-abe3-031729e6fd94" x="12" y="16" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{domicilio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="82407f77-82ee-43a1-92f1-6ddd840947ea" x="106" y="16" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RFC: "+$F{rfc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c22c7d43-c92d-43e0-b35f-c40f2d58afd2" x="12" y="41" width="95" height="9"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TICKET: "+$F{ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="aebed2fe-f22e-417a-a478-c76472571c33" x="106" y="49" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TEL.: "+$F{telefono}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6969ade5-8d0d-49eb-ad70-6fc5661851f0" x="106" y="8" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ELDORADO, SINALOA.]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="b9b378c5-0c4a-49d4-bffb-7e1744999a10" x="12" y="28" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha Inicial: "+$F{fecha_ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7536b5f4-ccef-4b20-87f3-8bda94b15ea4" x="106" y="28" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha Limite: "+$F{fecha_limite}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="83" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="5cacc831-8ea0-4fad-98bd-f2920c0f0fe5" x="37" y="23" width="134" height="25"/>
+			</rectangle>
+			<textField>
+				<reportElement uuid="4d4facdc-8677-4675-b302-f12aa6d89cfd" x="60" y="9" width="141" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6031bcf2-b007-465c-a16f-82c3f9953cc9" x="12" y="59" width="81" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relacion de Abonos:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="580d3381-a2ad-4e3a-b8eb-46faa68c41f7" x="58" y="71" width="86" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b42ba152-e89f-4aa8-a29d-189a81298efb" x="143" y="71" width="50" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CANTIDAD]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="a49b3b3f-b1ae-4ac7-884a-6cdd9c093d57" x="15" y="82" width="178" height="1"/>
+			</line>
+			<textField>
+				<reportElement uuid="ef48d381-a749-4c66-aa08-5880efcd00b9" x="37" y="35" width="67" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_abono}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="79ace443-8ee2-4298-b19e-160f0401a6f9" x="104" y="35" width="67" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="1cbaf45f-488a-4fb6-90d8-3ae5c64d7970" x="37" y="23" width="67" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FOLIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="91ae8a9c-5481-470f-adf9-c39a2378544c" x="104" y="23" width="67" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CANTIDAD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1a6b2305-33d1-4013-a770-0b70e5b1f2e0" x="12" y="9" width="48" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LE ATENDIO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0d8d0b8b-0447-4e1b-8e6c-693fbe707309" x="47" y="0" width="19" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["#"+$F{folio_cliente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="8df6bda0-49b5-412a-aeb2-8bb2b3dd50da" x="12" y="0" width="36" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CLIENTE:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="06e2393b-947a-4bad-a68f-73d87643ca01" x="65" y="0" width="136" height="10"/>
+				<textElement>
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6963c877-1b9b-42ea-ae7a-a6fdd15a69f2" x="9" y="71" width="50" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FOLIO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField>
+				<reportElement uuid="4bd73d29-c56a-41ad-a88c-1b1cfc3b1ff4" x="58" y="0" width="86" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_abono}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="d766572a-ff36-476c-b524-8fabc11939e0" x="15" y="11" width="178" height="1"/>
+			</line>
+			<textField>
+				<reportElement uuid="6b1e9639-cf92-4260-8213-7ec80f858639" x="143" y="0" width="50" height="12"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0d020aac-13cc-4636-b1f7-232095bf610b" x="9" y="0" width="50" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_abono}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement uuid="af1f42fb-28ec-4b76-800b-18c4abdfc752" x="6" y="71" width="98" height="7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e83ea6ea-ef15-41c8-83f1-9c2076171182" x="107" y="71" width="98" height="7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="dcf0efe9-6cc6-430a-9767-caf5017723cd" x="6" y="70" width="98" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="b0794b45-4b08-4158-b344-cb42d773f317" x="106" y="70" width="98" height="1"/>
+			</line>
+			<rectangle>
+				<reportElement uuid="6f047962-52cb-4fea-bb99-fe6717b31ab2" x="15" y="2" width="178" height="14" forecolor="#FFFFFF" backcolor="#CCCCCC"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="689f8630-8ed7-4d97-9f9d-fa617f6bcc69" x="16" y="3" width="81" height="13"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Acumulado:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="5f268781-374c-4222-83b5-f8378d5c5530" x="120" y="3" width="73" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_de_acumulado}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e9fa0d1b-77f2-4a40-99cd-d31a59ca27e3" x="10" y="81" width="192" height="42"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[Las cuentas de ahorro que se manejan en Supermercado La Competidora deberán ser liquidadas en su totalidad al momento que el cliente desee hacer uso de su saldo disponible, el cliente solo podrá adquirir su saldo en mercancía ya que no se permite regresar efectivo.]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

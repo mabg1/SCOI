@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte  de Depositos Bancos" language="groovy" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d877fc95-687e-432b-bc71-4ca9584c39f8">
+	<property name="ireport.callouts" value="callouts.1.fg=0,0,0\n callouts.1.bg=255,255,0\n "/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.x" value="19"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[select
+    tb_captura_fuente_sodas.folio_empleado
+   ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as nombre_completo
+   ,case when(tb_empleado.status)=1
+          then 'VIGENTE'
+         when(tb_empleado.status)=2
+          then 'VACACIONES'
+         when(tb_empleado.status)=3
+          then 'INCAPACIDAD'
+         when(tb_empleado.status)=4
+          then 'BAJA'
+         when(tb_empleado.status)=5
+          then 'NO CONTRATABLE'
+          end as estatus_empleado
+
+   ,tb_empleado.status
+   ,tb_captura_fuente_sodas.folio_establecimiento
+   ,tb_establecimiento.nombre as establecimiento
+   ,tb_captura_fuente_sodas.ticket
+   ,tb_captura_fuente_sodas.importe
+   ,convert (varchar(15),tb_captura_fuente_sodas.fecha,103)as fecha_del_ticket
+   ,cajero.nombre+' '+cajero.ap_paterno+' '+cajero.ap_materno as cajero
+   ,tb_captura_fuente_sodas.folio_corte
+   ,isnull(convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte,103),'NO TIENE CORTE')as fecha_corte
+   ,case when(tb_captura_fuente_sodas.folio_corte)<>''
+         then datediff(day,tb_alimentacion_de_cortes.fecha_de_corte,getdate())
+         else (select 0)
+        end  AS Dias_Sin_Cobro_Despues_Del_Corte
+   , datediff(day,tb_captura_fuente_sodas.fecha,getdate())as Dias_Sin_Cobro_Desde_Captura
+
+from tb_captura_fuente_sodas
+inner join tb_empleado on tb_empleado.folio=tb_captura_fuente_sodas.folio_empleado
+inner join tb_empleado as cajero on cajero.folio=tb_captura_fuente_sodas.folio_usuario
+inner join tb_establecimiento on tb_establecimiento.folio=tb_captura_fuente_sodas.folio_establecimiento
+left outer join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=tb_captura_fuente_sodas.folio_corte
+
+where tb_captura_fuente_sodas.status =1 and tb_captura_fuente_sodas.fecha<getdate()-1
+
+order by tb_establecimiento.nombre,tb_captura_fuente_sodas.folio_empleado, tb_captura_fuente_sodas.fecha desc]]>
+	</queryString>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="nombre_completo" class="java.lang.String"/>
+	<field name="estatus_empleado" class="java.lang.String"/>
+	<field name="status" class="java.lang.Integer"/>
+	<field name="folio_establecimiento" class="java.lang.Integer"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="importe" class="java.math.BigDecimal"/>
+	<field name="fecha_del_ticket" class="java.lang.String"/>
+	<field name="cajero" class="java.lang.String"/>
+	<field name="folio_corte" class="java.lang.String"/>
+	<field name="fecha_corte" class="java.lang.String"/>
+	<field name="Dias_Sin_Cobro_Despues_Del_Corte" class="java.lang.Integer"/>
+	<field name="Dias_Sin_Cobro_Desde_Captura" class="java.lang.Integer"/>
+	<variable name="Import_fte_sodas" class="java.math.BigDecimal" resetType="Group" resetGroup="Group1" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe}]]></variableExpression>
+	</variable>
+	<variable name="Total Gloabal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe}]]></variableExpression>
+	</variable>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{establecimiento}]]></groupExpression>
+		<groupHeader>
+			<band height="27">
+				<frame>
+					<reportElement mode="Opaque" x="0" y="7" width="752" height="20" forecolor="#B89F7D" backcolor="#000099" uuid="cd1a2a38-5d1f-4178-a328-b0a941af3e54"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement style="SubTitle" isPrintRepeatedValues="false" x="25" y="0" width="224" height="20" forecolor="#FFFFFF" uuid="38a3224f-f8ba-4d04-bf56-9a222b10a10b"/>
+						<textElement>
+							<font size="14" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+					</textField>
+					<textField pattern="" isBlankWhenNull="false">
+						<reportElement mode="Transparent" x="0" y="0" width="25" height="20" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="2844a077-e988-4557-a112-00fbf0b7cd26"/>
+						<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+							<font fontName="Times New Roman" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+							<paragraph lineSpacing="Single"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{folio_establecimiento}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement x="264" y="7" width="52" height="13" forecolor="#FFFFFF" uuid="f54880e9-47a6-4aba-b544-2fe3387d3b9f"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Ticket]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="339" y="7" width="52" height="13" forecolor="#FFFFFF" uuid="0ffb9b8d-5414-4232-bb24-fabfca5783d3"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Importe]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="395" y="7" width="68" height="13" forecolor="#FFFFFF" uuid="db62d296-6b57-4ad6-9a67-12dcafe1cc4e"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Fecha Ticket]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="469" y="7" width="50" height="13" forecolor="#FFFFFF" uuid="7f9ab73a-ae57-4bd5-a927-7a2eaec1d0da"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Corte]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="533" y="7" width="68" height="13" forecolor="#FFFFFF" uuid="b47513ce-e9c2-451e-bfee-e22ede1a5d6d"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Fecha Corte]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="601" y="7" width="68" height="13" forecolor="#FFFFFF" uuid="8cc44e4b-61d1-458a-8724-a85fd6e7dc5b"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Dias S/Cobro]]></text>
+					</staticText>
+					<staticText>
+						<reportElement x="679" y="7" width="68" height="13" forecolor="#FFFFFF" uuid="a8a66e39-2f68-4716-8b2b-381858d6ca5e"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[DS/CobroCorte]]></text>
+					</staticText>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="16">
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="322" y="0" width="58" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="47aae228-eab4-42b2-add2-377509f0722a"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Import_fte_sodas}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="295" y="1" width="31" height="15" uuid="3f1204fc-3eb4-42b3-a87e-e6f2d826bd6a"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band height="52" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="565" height="50" forecolor="#000066" backcolor="#000066" uuid="c7737351-b4be-4035-8f50-aa9b2f0bed14"/>
+				<textField>
+					<reportElement style="Title" mode="Transparent" x="0" y="0" width="565" height="50" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="3aa900df-0386-4f36-8804-78e01cf0dfc3"/>
+					<box padding="0" topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="26" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Times-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single" lineSpacingSize="1.0" firstLineIndent="0" leftIndent="0" rightIndent="0" spacingBefore="0" spacingAfter="0" tabStopWidth="40"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Fuente de Sodas Sin Cobro en Listas de Raya "]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement x="702" y="1" width="50" height="50" uuid="123567b0-f54f-4428-afb5-e8854989bcb3"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/logPrincipal.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="645" y="1" width="56" height="50" uuid="6b1296d1-283b-437d-9074-c278c2caf56f"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\fast-food-icon.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="752" height="15" uuid="f5d31a52-71fc-4bad-8353-894631688bdc"/>
+				<textField>
+					<reportElement x="0" y="0" width="37" height="15" uuid="34d2f344-c4bf-4b72-9685-c2268a04d0b3"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="201" y="0" width="55" height="15" uuid="1f98f839-19d9-4d2f-8526-faa7373ba78c"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{estatus_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="256" y="0" width="66" height="15" uuid="b495806d-abca-45b8-9a3f-ff929a17f8ca"/>
+					<textFieldExpression><![CDATA[$F{ticket}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="322" y="0" width="58" height="15" uuid="c1b4516a-9171-4d0d-85d9-9e7457c5d915"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{importe}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="395" y="1" width="68" height="14" uuid="87ef11cb-8c3a-4a8a-a0d9-746518887655"/>
+					<textElement textAlignment="Right">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_del_ticket}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="469" y="1" width="62" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="9c69498e-e429-444b-84b9-d9c2c475d8ba"/>
+					<textElement verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_corte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="533" y="1" width="68" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="04c11fd7-4250-49ab-a85d-250afc43298f"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_corte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="701" y="0" width="29" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="a3670f53-88ed-49e7-ab59-bfe4649cf484"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Dias_Sin_Cobro_Despues_Del_Corte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="626" y="1" width="32" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="7b620859-278d-4561-989a-4558c2f2a893"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Dias_Sin_Cobro_Desde_Captura}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<textField>
+				<reportElement x="37" y="0" width="164" height="15" uuid="cf0e962f-1460-492b-8a95-c2ace71d180d"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_completo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="2" y="0" width="750" height="11" forecolor="#D0B48E" backcolor="#FF3300" uuid="6719fe6d-0b33-49a7-be3b-2617f6bff25f"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="704" y="1" width="40" height="10" forecolor="#FFFFFF" uuid="4a1881df-13f1-4ce0-94df-56a56c13ad20"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="624" y="1" width="80" height="10" forecolor="#FFFFFF" uuid="f3a02f90-418c-47eb-8bfe-1bef5b67c98b"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="2" y="1" width="197" height="10" forecolor="#FFFFFF" uuid="5328dd8c-f2bd-4276-bd69-500e4f5ad7d2"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="21">
+			<textField pattern="###0.00;-###0.00">
+				<reportElement mode="Opaque" x="308" y="1" width="72" height="20" forecolor="#FFFFFF" backcolor="#000000" uuid="f4fb1218-b925-407c-8cb6-ecee8778b0a9"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Total Gloabal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="238" y="1" width="70" height="20" forecolor="#FFFFFF" backcolor="#000000" uuid="2728db2b-c7e6-4318-bbc0-99bc3d3ab7e8"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Importe Total:]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

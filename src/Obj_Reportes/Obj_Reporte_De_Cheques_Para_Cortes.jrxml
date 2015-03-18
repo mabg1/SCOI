@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Efectivo_Para_Cortes" language="groovy" pageWidth="250" pageHeight="708" columnWidth="210" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0" uuid="1f81344e-8124-4307-847f-1d49169f400a">
+	<property name="ireport.zoom" value="3.8906136901500075"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="144"/>
+	<style name="Title" mode="Transparent" forecolor="#000000" backcolor="#000000" fontName="Arial" fontSize="26" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="SubTitle" forecolor="#666666" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fill="Solid" isBlankWhenNull="true" fontName="Arial" fontSize="12">
+		<paragraph lineSpacing="Single" tabStopWidth="40"/>
+	</style>
+	<queryString>
+		<![CDATA[declare @folio_corte varchar(15)
+set @folio_corte = ('SII131');
+
+select convert(varchar(20),tb_tabla_de_cheques_para_cortes.fecha_mov,103)+' '+convert(varchar(20),tb_tabla_de_cheques_para_cortes.fecha_mov,108) as fecha
+		,tb_tabla_de_cheques_para_cortes.folio_corte as folio_corte
+		,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as cajero
+		,ROW_NUMBER() OVER (ORDER BY tb_tabla_de_cheques_para_cortes.folio_corte) as orden
+		,tb_tabla_de_cheques_para_cortes.cantidad as cantidad
+        ,tb_realizo_corte.nombre+' '+tb_realizo_corte.ap_paterno+' '+tb_realizo_corte.ap_materno as realizo_corte
+
+from tb_tabla_de_cheques_para_cortes
+inner join tb_empleado on tb_empleado.folio = tb_tabla_de_cheques_para_cortes.folio_empleado
+inner join tb_empleado as tb_realizo_corte on tb_realizo_corte.folio = tb_tabla_de_cheques_para_cortes.usuario_corte
+
+where tb_tabla_de_cheques_para_cortes.folio_corte = @folio_corte
+
+order by tb_tabla_de_cheques_para_cortes.cantidad desc]]>
+	</queryString>
+	<field name="fecha" class="java.lang.String"/>
+	<field name="folio_corte" class="java.lang.String"/>
+	<field name="cajero" class="java.lang.String"/>
+	<field name="orden" class="java.lang.Long"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="realizo_corte" class="java.lang.String"/>
+	<variable name="Total Depositos" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="104" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="104bab70-2afa-4c55-97eb-5e97db737739" style="Title" x="0" y="8" width="210" height="26"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="20"/>
+					<paragraph tabStopWidth="50"/>
+				</textElement>
+				<text><![CDATA[Cheques De Cortes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9c3189db-55e2-4cf1-9123-94d3f6321cae" style="SubTitle" x="98" y="33" width="98" height="20" forecolor="#000000" backcolor="#000000"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Grupo Izagar]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="2f37aac2-4a87-4d4f-a9e5-b791ef9b9156" x="46" y="52" width="150" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["FECHA: "+$F{fecha}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="15095c36-7be2-4138-a3fe-6efbb41fcadd" style="SubTitle" x="11" y="85" width="185" height="16"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cajero(a): "+$F{cajero}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement uuid="046d3693-be1d-454e-8aa5-f9fcc5fefa70" mode="Opaque" x="2" y="88" width="9" height="9" forecolor="#CCCCCC" backcolor="#CCCCCC"/>
+			</rectangle>
+			<textField>
+				<reportElement uuid="588b0238-bd7e-47b9-b679-2104cb63248b" x="46" y="68" width="150" height="20"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA["FOLIO DE CORTE:"+$F{folio_corte}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="17" splitType="Stretch">
+			<line>
+				<reportElement uuid="7f1d2976-179a-4dd1-b93b-00760757c548" positionType="FixRelativeToBottom" x="0" y="-2" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement uuid="bb72580e-c6e8-463c-b608-aa22076143ec" x="27" y="0" width="79" height="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Serif" size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Cheque]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6ff081c4-1c78-4ef2-b250-5b05fd4bcb6e" x="105" y="0" width="84" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Serif" size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Cantidad]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<line>
+				<reportElement uuid="92d4ffe9-dc89-4c21-a4c3-136bf2b4fd3b" positionType="FixRelativeToBottom" x="0" y="14" width="210" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="20a777a4-6a59-4ea1-a6e3-378176e4393a" x="106" y="0" width="53" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="adec95d9-b8d4-4c26-8307-dc18020156a5" x="26" y="0" width="79" height="14"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orden}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="46" splitType="Stretch">
+			<textField>
+				<reportElement uuid="0ee4b3d1-58d8-4dba-8030-91a11ded60e9" x="11" y="0" width="148" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total De Cheques: "+$V{Total Depositos}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="57" splitType="Stretch">
+			<textField>
+				<reportElement uuid="ccbdef8b-5909-4919-8bd3-bfe6a3164344" x="0" y="5" width="210" height="11"/>
+				<textElement textAlignment="Center">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Firma Cajero(a): "+$F{cajero}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="7ed36ad0-6f80-4fc9-bfea-bcd22216f2b6" positionType="FixRelativeToBottom" x="0" y="3" width="209" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement uuid="5ea4c3bc-c31f-4f37-92de-2063a12cb999" x="2" y="47" width="208" height="10"/>
+				<textElement textAlignment="Center">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Firma Realizo Corte:"+$F{realizo_corte}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="71c854ae-b257-4a15-b472-0e5473689c4d" positionType="FixRelativeToBottom" x="1" y="46" width="209" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+</jasperReport>

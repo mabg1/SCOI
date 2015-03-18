@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Plantilla_Por_Establecimiento" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="329970ce-a624-4126-89ec-b0595e5b2a5f">
+	<property name="ireport.zoom" value="0.826446280991736"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString language="SQL">
+		<![CDATA[select tb_establecimiento.nombre as establecimiento
+		, tb_departamento.departamento as departamento
+		,tb_puesto.nombre as puesto
+		,tb_control_de_puestos_por_establecimiento.cantidad_de_puesto as cantidad_de_puestos
+from tb_control_de_puestos_por_establecimiento
+inner join tb_establecimiento on tb_establecimiento.folio = tb_control_de_puestos_por_establecimiento.folio_establecimiento
+inner join tb_departamento on tb_departamento.folio = tb_control_de_puestos_por_establecimiento.folio_departamento
+inner join tb_puesto on tb_puesto.folio = tb_control_de_puestos_por_establecimiento.folio_puesto
+order by tb_establecimiento.nombre]]>
+	</queryString>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="departamento" class="java.lang.String"/>
+	<field name="puesto" class="java.lang.String"/>
+	<field name="cantidad_de_puestos" class="java.lang.Integer"/>
+	<variable name="variable1" class="java.math.BigDecimal" resetType="Group" resetGroup="establecimiento" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_de_puestos}]]></variableExpression>
+	</variable>
+	<group name="establecimiento">
+		<groupExpression><![CDATA[$F{establecimiento}]]></groupExpression>
+		<groupHeader>
+			<band height="37">
+				<frame>
+					<reportElement uuid="40084bae-b954-4115-9a5f-a8b702aadcc0" mode="Opaque" x="0" y="7" width="555" height="24" forecolor="#B89F7D" backcolor="#0000CC"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement uuid="e30230e5-9519-4abf-a26a-39863ba60575" style="SubTitle" isPrintRepeatedValues="false" x="5" y="0" width="479" height="17" forecolor="#FFFFFF"/>
+						<textElement>
+							<font size="14" isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="15">
+				<rectangle radius="10">
+					<reportElement uuid="74b78a45-c8e7-46a0-b270-855676fbdfa8" x="189" y="0" width="259" height="14"/>
+				</rectangle>
+				<staticText>
+					<reportElement uuid="d12fe28a-4ef4-44bf-bd91-5674b684f94b" x="199" y="0" width="171" height="14" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Puestos Por Establecimiento:  ]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="ae2b8eed-d4a1-41ac-ba87-847fb74ef6f7" x="370" y="0" width="90" height="14"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="11" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{variable1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="departamento">
+		<groupExpression><![CDATA[$F{departamento}]]></groupExpression>
+		<groupHeader>
+			<band height="34">
+				<frame>
+					<reportElement uuid="889d6fce-69f0-425b-a044-3eab1c43b7bd" mode="Opaque" x="0" y="0" width="555" height="34" forecolor="#000000" backcolor="#FFCC66"/>
+					<staticText>
+						<reportElement uuid="ef329bb9-f9a1-403d-9f0e-f8740effb288" x="0" y="18" width="275" height="12" forecolor="#000000"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="9" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Puestos	]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="b6f12423-d908-4871-8c3b-a55871e62111" x="278" y="18" width="275" height="12" forecolor="#000000"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="9" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Cantidad]]></text>
+					</staticText>
+					<rectangle radius="10">
+						<reportElement uuid="a84b4764-5d9a-4f9a-9297-2ac4eaf45665" x="7" y="5" width="10" height="10"/>
+					</rectangle>
+				</frame>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement uuid="145de4b2-d416-4e47-94ff-6836303b1246" positionType="Float" mode="Transparent" x="27" y="1" width="305" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="14" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{departamento}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="132" splitType="Stretch">
+			<frame>
+				<reportElement uuid="62dce53b-f44b-40e9-906a-0ba3fc6d37c8" mode="Opaque" x="0" y="0" width="555" height="105" backcolor="#0000CC"/>
+				<staticText>
+					<reportElement uuid="a996eaa6-0849-4b2b-89e6-ce2e497e47d0" style="Title" x="0" y="0" width="448" height="105"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="35" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Plantilla Por Establecimiento]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement uuid="55e867b2-8004-451d-b4ab-6e094ccd54de" mode="Opaque" x="0" y="111" width="553" height="21" forecolor="#000000" backcolor="#FF9900"/>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="fc7c5b2d-ac26-4dcf-98aa-6056b79e2bd7" x="2" y="1" width="144" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right">
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement uuid="6ac1e449-22d5-451a-8913-df531f4a8d01" x="448" y="-1" width="155" height="112"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\Thiago-Silva-Palm-Contacts.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="5" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement uuid="92f1c2a5-6290-40bf-b9bd-947e3dacdaab" style="Row" mode="Opaque" x="0" y="1" width="555" height="13"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="1189286d-95c4-42a8-bb55-722a8d55585b" style="Detail" positionType="Float" x="23" y="0" width="347" height="12"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{puesto}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="9c121aec-7fb2-4572-8d51-8dbf74db071b" style="Detail" positionType="Float" x="370" y="0" width="90" height="12"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cantidad_de_puestos}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="7" splitType="Stretch">
+			<line>
+				<reportElement uuid="aabcda97-6969-45d0-8802-ea1ced00ae66" positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement uuid="16134851-051b-4e3c-bef9-9cc2fcac7c56" mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#0000CC"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="2da45af8-0ea0-474e-bda7-a4a1a359022c" style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="9166871d-4af4-4125-a8e6-3db2109815ce" style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="97f33f05-e5b0-4205-a24b-48f1cca14063" style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

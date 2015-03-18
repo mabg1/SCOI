@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte_Prestamos" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="72b28e85-6b85-405a-a19e-a90c0b1b291a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="2.593742460100005"/>
+	<property name="ireport.x" value="302"/>
+	<property name="ireport.y" value="53"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[Select * from
+(select tb_empleado.folio as Folio,
+        tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno AS Nombre,
+        tb_establecimiento.nombre AS Establecimiento,
+        CASE
+	       WHEN (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1) IS NULL
+		       THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   WHEN (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1) = 0
+			   THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   WHEN ((select tb_diferencia_cortes.cantidad from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1) - (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1)) >= (select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1)
+			   THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   ELSE isnull(((select tb_diferencia_cortes.cantidad from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1) - (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1)),'0')
+	     END as Cortes,
+	     isnull(tb_deduccion_inasistencia.extra,'0') as D_Extra
+   FROM tb_empleado
+		left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+		left outer join tb_deduccion_inasistencia on tb_deduccion_inasistencia.folio_empleado=tb_empleado.folio and tb_deduccion_inasistencia.status=1
+		left outer join tb_diferencia_cortes on tb_diferencia_cortes.folio_empleado=tb_empleado.folio and tb_diferencia_cortes.status=1
+		left outer join tb_persecciones_extra on tb_persecciones_extra.folio_empleado=tb_empleado.folio and tb_persecciones_extra.status=1
+		left outer join tb_abono_cortes on tb_abono_cortes.folio_empleado = tb_diferencia_cortes.folio_empleado and tb_abono_cortes.status = 1
+		where tb_empleado.status = 1
+		GROUP BY tb_empleado.folio ,
+			   tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno ,
+			   tb_establecimiento.nombre ,
+			   tb_diferencia_cortes.descuento ,
+			   tb_diferencia_cortes.cantidad,
+			   tb_deduccion_inasistencia.extra
+		)cortes
+where Cortes.Cortes>0 or D_Extra<0
+order by Establecimiento asc]]>
+	</queryString>
+	<field name="Folio" class="java.lang.Integer"/>
+	<field name="Nombre" class="java.lang.String"/>
+	<field name="Establecimiento" class="java.lang.String"/>
+	<field name="Cortes" class="java.math.BigDecimal"/>
+	<field name="D_Extra" class="java.math.BigDecimal"/>
+	<variable name="Total_Cortes" class="java.lang.Float" resetType="Group" resetGroup="Group2" calculation="Sum">
+		<variableExpression><![CDATA[$F{Cortes}]]></variableExpression>
+	</variable>
+	<variable name="Total_D_Cortes" class="java.lang.Float" resetType="Group" resetGroup="Group2" calculation="Sum">
+		<variableExpression><![CDATA[$F{D_Extra}]]></variableExpression>
+	</variable>
+	<variable name="Total_Global_Corte" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{Cortes}]]></variableExpression>
+	</variable>
+	<variable name="Total_Global_D_Extra" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{D_Extra}]]></variableExpression>
+	</variable>
+	<group name="Group2" keepTogether="true">
+		<groupExpression><![CDATA[$F{Establecimiento}]]></groupExpression>
+		<groupHeader>
+			<band height="16">
+				<frame>
+					<reportElement uuid="9da96497-8519-4d25-858d-de3d9f2646ec" mode="Opaque" x="0" y="0" width="555" height="16" forecolor="#B89F7D" backcolor="#FF6600"/>
+				</frame>
+				<textField>
+					<reportElement uuid="19c3b467-e9a6-42a1-9c4c-79774c504046" x="2" y="0" width="184" height="16" forecolor="#FFFFFF"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{Establecimiento}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="65233827-0aa2-413e-80c7-2ce1583a2911" style="Column header" x="303" y="4" width="49" height="12" forecolor="#FFFFFF"/>
+					<textElement>
+						<font fontName="Times New Roman" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Cortes]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="41cae9ad-3e6d-4047-9416-7c6df1363999" style="Column header" x="433" y="4" width="68" height="12" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Left">
+						<font fontName="Times New Roman" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Descuento Extra]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="14">
+				<line>
+					<reportElement uuid="65bc79b0-0f7a-4d03-9140-554189329500" positionType="FixRelativeToBottom" x="-2" y="0" width="555" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement uuid="222e842e-38da-4600-a516-4a7ff2d58694" x="243" y="0" width="37" height="14"/>
+					<textElement/>
+					<text><![CDATA[Totales:]]></text>
+				</staticText>
+				<textField pattern="¤ #,##0.00">
+					<reportElement uuid="82143d65-374c-4c36-9df7-b11c07af8901" x="281" y="0" width="100" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$V{Total_Cortes}]]></textFieldExpression>
+				</textField>
+				<textField pattern="¤ #,##0.00">
+					<reportElement uuid="7957ca41-1e7f-4211-8a7b-d3ce6cf76810" x="423" y="0" width="90" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$V{Total_D_Cortes}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="30" splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="57" splitType="Stretch">
+			<frame>
+				<reportElement uuid="f40033e7-3b11-4284-9dc5-639e231aceba" mode="Opaque" x="0" y="0" width="477" height="50" forecolor="#000080" backcolor="#000080"/>
+				<staticText>
+					<reportElement uuid="31bea70f-4e17-4539-aad9-9162208eeb59" style="Title" x="30" y="0" width="370" height="50"/>
+					<textElement>
+						<font size="36" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Diferencias en Cortes]]></text>
+				</staticText>
+				<image>
+					<reportElement uuid="1a62e781-1024-4986-a819-eab284e1c166" x="423" y="0" width="50" height="50"/>
+					<imageExpression><![CDATA["C:/SCOI/imagen/prestamo.png"]]></imageExpression>
+				</image>
+			</frame>
+			<image>
+				<reportElement uuid="ae937403-f1d8-4348-b356-94187037f95a" x="505" y="0" width="50" height="50"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/logPrincipal.png"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<frame>
+				<reportElement uuid="677d8f5a-892c-41a4-a81d-5648e093edbe" style="Row" mode="Opaque" x="0" y="0" width="555" height="14"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="376df1cf-51cd-43e5-93e5-17afe2ac8e23" style="Detail" positionType="Float" x="2" y="0" width="40" height="12"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Folio}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="09448cbc-d5e3-4d7c-a34c-3227f7b5cc99" x="42" y="0" width="178" height="14"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+				</textField>
+				<textField pattern="¤ #,##0.00">
+					<reportElement uuid="43271a41-d2a0-454d-b73b-4458d2cc3663" x="281" y="0" width="100" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{Cortes}]]></textFieldExpression>
+				</textField>
+				<textField pattern="¤ #,##0.00">
+					<reportElement uuid="fe8aee6e-cb68-4c30-b59a-7946812e5817" x="423" y="0" width="90" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{D_Extra}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement uuid="33abdeb0-e9f1-4c75-b348-6d21d5509224" mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#000080"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="8b54e201-57d3-4808-9667-fe95152a5f9b" style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="66b3c497-c5f2-4263-95fb-2ced5906c761" style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="4eef6750-75cc-423a-83bf-fb0fc1be6790" style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="19">
+			<staticText>
+				<reportElement uuid="2f832f49-6b47-4db3-bb4a-92e5aa314177" x="199" y="6" width="82" height="13"/>
+				<textElement>
+					<font isUnderline="true" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[Totales Globales:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="02db6069-828f-402a-b603-25a7c83fb2cb" x="281" y="6" width="100" height="13"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{Total_Global_Corte}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="b5552cf1-65f0-4494-8331-38d1dea59a89" x="423" y="6" width="90" height="13"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{Total_Global_D_Extra}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

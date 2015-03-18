@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Depositos_A_Bancos_Para_Exportar" pageWidth="612" pageHeight="7200" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8029f220-9e71-4f79-977f-3ca107ccf0ce">
+	<property name="ireport.zoom" value="2.1435888100000016"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select  tb_bancos.folio_empleado
+       ,tb_establecimiento.nombre as establecimiento
+       ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as nombre_completo
+       ,tb_bancos.banamex
+       ,tb_bancos.banorte
+from tb_bancos
+inner join tb_empleado on tb_bancos.folio_empleado = tb_empleado.folio
+inner join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+ where tb_bancos.banamex>0 or tb_bancos.banorte>0 and tb_bancos.status=1
+order by  banamex,nombre_completo]]>
+	</queryString>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="nombre_completo" class="java.lang.String"/>
+	<field name="banamex" class="java.math.BigDecimal"/>
+	<field name="banorte" class="java.math.BigDecimal"/>
+	<columnHeader>
+		<band height="13">
+			<staticText>
+				<reportElement uuid="d3e1071f-67cb-4563-aa57-8f619b02a0e9" x="0" y="0" width="51" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Folio Emp.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4228f2d2-0a9e-4683-a1bf-7d08d70940c6" x="51" y="0" width="308" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nombre Completo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7dcc7cc4-01e1-4d2d-8e64-1f0543666660" x="359" y="0" width="100" height="13"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Deposito Banamex]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6b027489-5115-4f1e-8f66-ac34d930bb63" x="459" y="0" width="96" height="13"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Deposito Banorte]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="16">
+			<textField>
+				<reportElement uuid="a7d10560-fe54-48d7-bf5b-69d67407a23f" x="0" y="0" width="51" height="16" backcolor="#FFFFFF"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a8d2e70a-5f00-4ecb-b93d-44951f919c5a" x="51" y="0" width="308" height="16" backcolor="#FFFFFF"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{nombre_completo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="ae61c284-b9df-4874-90c7-b99580e6d448" x="359" y="0" width="100" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{banamex}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement uuid="c15ae72a-1746-47ab-9d99-0a3a18c2dbad" x="459" y="0" width="96" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{banorte}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

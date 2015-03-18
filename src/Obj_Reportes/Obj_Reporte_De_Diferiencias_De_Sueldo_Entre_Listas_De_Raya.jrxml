@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Diferiencias_De_Sueldo_Entre_Listas_De_Raya" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="2581964a-fef8-484a-addd-e085d2044d14">
+	<property name="ireport.zoom" value="2.143588810000003"/>
+	<property name="ireport.x" value="72"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[Declare @tabla_temp varchar(30),@sqlqry nvarchar(max)
+
+set @tabla_temp =(SELECT '##' + replace(replace(replace(convert(varchar(50),getdate(),126),'-',''),':',''),'.',''))
+
+SET NOCOUNT ON
+
+
+set @sqlqry='
+
+DECLARE @contador_empleado int,@contador_cambios_LR int,@num_lista_raya int,@neto_a_buscar money,@numero_lista_raya int,@nombre_completo varchar(250),@establecimiento varchar(150)
+ 	    ,@sueldo money ,@bono money  ,@fecha smalldatetime
+	set @contador_cambios_LR=0
+    set @contador_empleado=0
+    set @num_lista_raya=0
+    CREATE TABLE '+@tabla_temp+'( [numero_lista] int,[folio_empleado] int,[nombre_completo] varchar(300),[establecimiento] varchar(150),
+                            [sueldo] money,bono money,fecha smalldatetime)
+
+
+    WHILE @contador_empleado <(SELECT MAX(TB_EMPLEADO.FOLIO) FROM TB_EMPLEADO)
+      BEGIN
+         SET @contador_empleado=@contador_empleado+1
+         SET @contador_cambios_LR=0
+        IF @contador_empleado IN(select folio from tb_empleado where status<4) and (SELECT COUNT(neto)from( SELECT DISTINCT sueldo+p_bono_comptario as neto FROM tb_lista_raya where folio_empleado=@contador_empleado)cambios_sueldo)>1
+          BEGIN
+		   WHILE @contador_cambios_LR<(SELECT COUNT(neto)from( SELECT DISTINCT sueldo+p_bono_comptario as neto FROM tb_lista_raya where folio_empleado=@contador_empleado)cambios_sueldo)
+			BEGIN
+				set @contador_cambios_LR=@contador_cambios_LR+1
+				set @neto_a_buscar=(SELECT NETOS.neto FROM(select rank()over(order by neto) as consecutivo,cambios_sueldo.neto
+																from (SELECT DISTINCT sueldo+p_bono_comptario as neto
+																		   FROM tb_lista_raya where folio_empleado=@contador_empleado)
+																	 cambios_sueldo)
+													  NETOS  WHERE NETOS.consecutivo=@contador_cambios_LR)
+
+				set @numero_lista_raya= (SELECT TOP 1 numero_lista  FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+				set @nombre_completo=(SELECT TOP 1 rtrim(ltrim(nombre_completo))  FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+				set @establecimiento=(SELECT TOP 1 establecimiento  FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+				set @sueldo=         (SELECT TOP 1 sueldo           FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+				set @bono=           (SELECT TOP 1 p_bono_comptario FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+				set @fecha=          (SELECT TOP 1 fecha            FROM tb_lista_raya WHERE sueldo+p_bono_comptario=@neto_a_buscar and folio_empleado=@contador_empleado)
+
+				  INSERT INTO '+@tabla_temp+'(numero_lista      ,folio_empleado     ,nombre_completo,establecimiento ,sueldo ,bono ,fecha )
+									   VALUES(@numero_lista_raya,@contador_empleado,@nombre_completo,@establecimiento,@sueldo,@bono,@fecha)
+             END
+		 END
+      END
+select numero_lista,folio_empleado,nombre_completo,establecimiento,sueldo,bono,convert(varchar(15),fecha,103)as fecha_corta, ''reporte'' as reporte from '+@tabla_temp+'
+
+ order by nombre_completo,numero_lista
+
+'
+
+	exec sp_executesql @sqlqry
+
+	SET @sqlqry = 'Drop Table ' + @tabla_temp
+	exec sp_executesql @sqlqry
+
+	SET NOCOUNT OFF]]>
+	</queryString>
+	<field name="numero_lista" class="java.lang.Integer"/>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="nombre_completo" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="sueldo" class="java.math.BigDecimal"/>
+	<field name="bono" class="java.math.BigDecimal"/>
+	<field name="fecha_corta" class="java.lang.String"/>
+	<field name="reporte" class="java.lang.String"/>
+	<group name="establecimiento">
+		<groupHeader>
+			<band height="17">
+				<frame>
+					<reportElement mode="Opaque" x="0" y="1" width="555" height="15" forecolor="#000099" backcolor="#FF6600" uuid="aad6104e-efca-4908-94d5-45ce3cb670ee"/>
+					<staticText>
+						<reportElement style="Column header" mode="Transparent" x="395" y="0" width="36" height="14" forecolor="#FFFFFF" uuid="0339c35f-4457-4f50-a065-968fdd55e90c"/>
+						<textElement textAlignment="Center">
+							<font size="12" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Bono]]></text>
+					</staticText>
+					<staticText>
+						<reportElement style="Column header" mode="Transparent" x="354" y="0" width="41" height="14" forecolor="#FFFFFF" uuid="445deed1-b95b-4479-91bd-0abccb223d8a"/>
+						<textElement textAlignment="Center">
+							<font size="12" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Sueldo]]></text>
+					</staticText>
+					<staticText>
+						<reportElement style="Column header" mode="Transparent" x="431" y="0" width="38" height="14" forecolor="#FFFFFF" uuid="aeed52ef-46ca-4c49-bfd1-4a6342fab687"/>
+						<textElement textAlignment="Center">
+							<font size="12" isBold="true"/>
+						</textElement>
+						<text><![CDATA[No.L.R.]]></text>
+					</staticText>
+					<staticText>
+						<reportElement style="Column header" mode="Transparent" x="469" y="0" width="84" height="14" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="b382a864-187c-4198-9e30-bff2b0368daf"/>
+						<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" markup="none">
+							<font fontName="Times New Roman" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+							<paragraph lineSpacing="Single"/>
+						</textElement>
+						<text><![CDATA[Fecha]]></text>
+					</staticText>
+				</frame>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="60" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="446" height="58" backcolor="#000066" uuid="b9eff32c-88d7-464e-b2af-1789ed528890"/>
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="446" height="58" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="3b9128f2-2237-4759-9b57-920083a8df54"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="22" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{reporte}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement x="469" y="0" width="65" height="58" uuid="0f90ca26-774b-4729-8fe9-e50f1e9cfca5"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\diferiencia_de_sueldos_entre_listas_de_raya2_128.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="15" uuid="e5bac93b-9da7-4f7b-83a0-953eafc52893"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="2" y="0" width="25" height="14" uuid="e040c94f-449e-4399-b771-09e40f19e172"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="27" y="0" width="225" height="14" uuid="600f6629-3911-4971-a3f3-ae41bc024959"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{nombre_completo}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement style="Detail" positionType="Float" x="355" y="0" width="40" height="14" uuid="b72f33a0-ae9f-4d0c-ae98-af00d0c033fa"/>
+					<textElement textAlignment="Right">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sueldo}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement style="Detail" positionType="Float" x="395" y="0" width="36" height="14" uuid="246bdcc3-541b-4464-8436-c7de9529fbef"/>
+					<textElement textAlignment="Right">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{bono}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="482" y="0" width="73" height="14" uuid="23e38df7-d4e7-4833-bc59-481064646208"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_corta}]]></textFieldExpression>
+				</textField>
+				<textField pattern="" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="431" y="0" width="38" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="e6231c8f-dce2-43d1-b165-e33300811535"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{numero_lista}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement style="SubTitle" isPrintRepeatedValues="false" mode="Transparent" x="252" y="0" width="102" height="14" forecolor="#000000" backcolor="#FFFFFF" uuid="4475d93f-65b7-4970-acd8-6d6e48676963"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="Times New Roman" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="27" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#000099" backcolor="#000066" uuid="e28e23b1-b9a8-4acb-8bd4-345b4469b7f1"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="500" y="0" width="40" height="20" forecolor="#FFFFFF" uuid="3cbca4c1-ebd6-46f3-bd36-b3409e73173c"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="415" y="0" width="80" height="20" forecolor="#FFFFFF" uuid="d9247c03-1b4b-46ef-b5ae-96780f5f0a4c"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Pagina"+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF" uuid="5bd21682-9985-4648-bf15-f672696b882b"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

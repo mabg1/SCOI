@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte_De_Empleados_Con_Horario_Provisional" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6f4c9006-38e1-41a0-82d7-3ff82e973556">
+	<property name="ireport.zoom" value="1.818181818181819"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[select folio as folio_horario
+       ,horario
+       ,isnull(folio_empleado,0) as folio_empleado
+       ,isnull(nombre_empleado,'') as nombre_empleado
+       ,nivel_horario
+       ,'Reporte De Horarios Asignados' as Reporte
+
+ from
+(select tb_horarios.folio
+     ,tb_horarios.nombre as horario
+     ,tb_empleado.folio as folio_empleado
+     ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as nombre_empleado
+     ,'Horario 1' as nivel_horario
+ from tb_horarios
+left outer join tb_empleado on tb_empleado.horario=tb_horarios.folio and tb_empleado.status<4
+
+union all
+
+select tb_horarios.folio
+     ,tb_horarios.nombre as horario
+     ,tb_empleado.folio as folio_empleado
+     ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno  as nombre_empleado
+     ,'Horario 2' as nivel_horario
+ from tb_horarios
+left outer join tb_empleado on tb_empleado.horario2=tb_horarios.folio and tb_empleado.status<4
+
+union all
+select tb_horarios.folio
+     ,tb_horarios.nombre as horario
+     ,tb_empleado.folio as folio_empleado
+     ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno  as nombre_empleado
+     ,'Horario 3' as nivel_horario
+ from tb_horarios
+left outer join tb_empleado on tb_empleado.horario3=tb_horarios.folio and tb_empleado.status<4)horarios
+
+
+
+order by horarios.folio asc,nivel_horario]]>
+	</queryString>
+	<field name="folio_horario" class="java.lang.Integer"/>
+	<field name="horario" class="java.lang.String"/>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="nombre_empleado" class="java.lang.String"/>
+	<field name="nivel_horario" class="java.lang.String"/>
+	<field name="Reporte" class="java.lang.String"/>
+	<group name="Group2">
+		<groupExpression><![CDATA[(int)($V{REPORT_COUNT}/5)]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="88" splitType="Stretch">
+			<frame>
+				<reportElement uuid="4d357524-43c0-4058-9c3b-ca6c4d267da1" mode="Opaque" x="0" y="0" width="451" height="54" backcolor="#3399FF"/>
+				<textField>
+					<reportElement uuid="8732b33f-7559-47fd-86a9-5c04e707b660" x="0" y="0" width="422" height="54" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Center">
+						<font size="24"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{Reporte}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement uuid="7c82262b-48f3-476a-ba8c-1c9c1809e198" mode="Opaque" x="0" y="54" width="451" height="21" forecolor="#000000" backcolor="#FF9900"/>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="bb3cfd27-9f0c-40d7-90bc-aebc50dbffdf" x="307" y="0" width="144" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right">
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement uuid="b50a4570-8aea-4823-b031-e8ff075b8c37" x="451" y="0" width="104" height="74"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\reloj.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<rectangle>
+				<reportElement uuid="998c96bd-d93c-4a82-bcff-cf4bb1d3185c" x="0" y="4" width="555" height="20" backcolor="#333333"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="8e8bc53f-5b6b-40f0-b5dc-2417dffd4b65" x="495" y="4" width="60" height="20" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Nivel Horario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="68f9c31a-b769-4ac2-837a-2b0269318fb2" x="328" y="4" width="105" height="20" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Nombre Empleado]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="05ca70d3-4f24-4550-8777-cc944451b572" x="300" y="4" width="25" height="20" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[F.E.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="844809a8-3630-4472-993a-9160eae9b011" x="109" y="4" width="64" height="20" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Horario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1166f901-b9df-4423-89bd-83805ea28724" x="0" y="4" width="25" height="20" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Folio]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<frame>
+				<reportElement uuid="73da416e-bb9a-4f3e-8821-951e7f03bec3" style="Row" mode="Opaque" x="0" y="0" width="555" height="18"/>
+				<textField>
+					<reportElement uuid="9b46e967-25fe-4152-b4f7-e79811fc6159" x="0" y="0" width="25" height="18"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{folio_horario}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="5409367e-123f-4fc0-8a12-2d48ecdda047" x="25" y="1" width="275" height="17"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{horario}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="3e06230a-6796-40da-a8e1-4388cc07273b" x="300" y="1" width="25" height="17"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="bf241d67-98b3-467c-a599-927dd2717634" x="325" y="0" width="188" height="17"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{nombre_empleado}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="a6a49463-3c2c-4e4e-b715-41b1a453dc9f" x="513" y="1" width="42" height="17"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{nivel_horario}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="6" splitType="Stretch">
+			<line>
+				<reportElement uuid="f728b7a7-345e-4113-940c-1c5825e8bdc9" positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement uuid="9747f3a9-2e49-4093-a40a-df1aa8411c1b" mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#0099FF"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="0b4c2f33-ffbc-452b-ba4e-5a7d5d4cedab" style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="5786ed88-22ac-47bf-8b0b-b5328391359a" style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="a5111a84-1b92-409c-bc89-dd17e2f3996b" style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

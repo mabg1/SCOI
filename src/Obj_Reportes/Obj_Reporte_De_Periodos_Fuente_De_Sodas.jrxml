@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Periodos_Fuente_De_Sodas" language="groovy" pageWidth="611" pageHeight="791" columnWidth="571" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="22dc77ce-4dce-4801-8ec0-c7a01733f232">
+	<property name="ireport.zoom" value="1.3310000000000015"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="periodo" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[if($P{periodo})=0
+begin
+SELECT folio_empleado as folio_empleado,nombre_completo as empleado,ticket as ticket,cantidad  as cantidad,fecha as fecha_ticket,convert(varchar(20),Fecha_Captura,103) as fecha_captura
+,periodo as periodo FROM tb_fuente_sodas_auxf where status_ticket = 0 and status = 1 and periodo > $P{periodo} ORDER BY periodo ASC,nombre_completo ASC
+end
+else
+begin
+SELECT folio_empleado as folio_empleado,nombre_completo as empleado,ticket as ticket,cantidad  as cantidad,fecha as fecha_ticket,convert(varchar(20),Fecha_Captura,103) as fecha_captura
+,periodo as periodo FROM tb_fuente_sodas_auxf where status_ticket = 0 and status = 1 and periodo = $P{periodo} ORDER BY periodo ASC,nombre_completo ASC
+end]]>
+	</queryString>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="empleado" class="java.lang.String"/>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="fecha_ticket" class="java.lang.String"/>
+	<field name="fecha_captura" class="java.lang.String"/>
+	<field name="periodo" class="java.lang.Integer"/>
+	<variable name="total_de_periodo" class="java.math.BigDecimal" resetType="Group" resetGroup="Grupo_Periodo" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad}]]></variableExpression>
+	</variable>
+	<group name="totales por periodo">
+		<groupExpression><![CDATA[$F{periodo}]]></groupExpression>
+		<groupFooter>
+			<band height="6"/>
+		</groupFooter>
+	</group>
+	<group name="Grupo_Periodo" keepTogether="true">
+		<groupExpression><![CDATA[$F{periodo}]]></groupExpression>
+		<groupHeader>
+			<band height="21">
+				<frame>
+					<reportElement uuid="dd480ddc-d19d-402c-bcdc-505f8f32610f" mode="Opaque" x="0" y="0" width="571" height="21" forecolor="#B89F7D" backcolor="#0000FF"/>
+					<staticText>
+						<reportElement uuid="de82b979-7b3f-4089-970e-c8fdf0f93877" x="0" y="1" width="36" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Folio]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="05abf479-4d51-4fd2-90f0-53d1b4c5f9f8" x="36" y="1" width="190" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Empleado]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="9d8a01bc-2590-4915-8d44-5a07704e021e" x="226" y="1" width="46" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Ticket]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="548c9376-328f-420e-95a1-6dd89e418095" x="271" y="1" width="54" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Cantidad]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="0ed8cc1f-d6d6-4aa8-9e19-39c9a027d8ac" x="325" y="1" width="96" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Fecha de ticket]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="6a76344d-9c42-4f54-94df-bb575ab4ec9b" x="423" y="1" width="52" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Periodo]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="eb8e4a8f-6755-487c-8602-56e7f0dbb931" x="474" y="1" width="92" height="20" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font size="11" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Fecha de captura]]></text>
+					</staticText>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="18">
+				<rectangle radius="10">
+					<reportElement uuid="0fa02fd7-8474-45bb-a4ec-5c180b894fce" x="179" y="5" width="148" height="13"/>
+				</rectangle>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="c8ffb8da-c953-4575-959a-b733f1f305a4" x="275" y="4" width="46" height="13"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{total_de_periodo}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="be702985-9164-4928-93bf-ed8c9099d8bf" x="179" y="4" width="96" height="13" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total De Periodo: ]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<frame>
+				<reportElement uuid="d8d67d19-d3a1-4f82-8926-2148a6067e2c" mode="Opaque" x="0" y="58" width="481" height="19" forecolor="#000000" backcolor="#FFCC00"/>
+			</frame>
+			<frame>
+				<reportElement uuid="0f5f0535-b4e2-46cf-be08-2b3ee70737e3" mode="Opaque" x="0" y="0" width="481" height="54" backcolor="#0000FF"/>
+				<staticText>
+					<reportElement uuid="c3d353be-ba9b-4e57-adbc-fe86afc2a1eb" style="Title" x="2" y="0" width="479" height="51"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="28" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Periodo De Fuente De Sodas]]></text>
+				</staticText>
+			</frame>
+			<image>
+				<reportElement uuid="af02060b-666f-4aa3-a59e-13fd4d48f881" x="482" y="-6" width="89" height="84"/>
+				<imageExpression><![CDATA["C:\\SCOI\\Iconos\\periodo.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="3" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField>
+				<reportElement uuid="72fe42e7-c72b-4b3e-981e-06867fa56604" x="228" y="0" width="45" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c31d1d82-61a1-482a-9c16-1e7353d18e73" x="0" y="0" width="31" height="12"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="07047527-9773-4145-a401-4af69a3e4bae" x="37" y="0" width="190" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="3094c895-58be-4076-88cd-b126c2dd8c70" x="275" y="0" width="44" height="12"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="d3cb453e-3077-4dea-87c2-65e34f18a9ba" x="326" y="0" width="96" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="6833a00e-71ba-487d-b53a-4a3a75b34d04" x="422" y="0" width="54" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{periodo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e9b99b3f-6c1e-4fc2-95fa-284de4e691e1" x="476" y="0" width="90" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_captura}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="4" splitType="Stretch">
+			<line>
+				<reportElement uuid="1cd67237-0f25-4db5-8c98-e418dd97ad42" positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="16" splitType="Stretch">
+			<frame>
+				<reportElement uuid="5aebc063-8891-4eb0-83dc-47ca123ef997" mode="Opaque" x="0" y="0" width="571" height="16" forecolor="#D0B48E" backcolor="#0000FF"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="a4b14c3e-1448-4d48-8ad0-bd75f1bee806" style="Column header" x="526" y="0" width="40" height="15" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="f8e1c617-bdf3-424a-a584-9ea0f622b61a" style="Column header" x="446" y="0" width="80" height="15" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

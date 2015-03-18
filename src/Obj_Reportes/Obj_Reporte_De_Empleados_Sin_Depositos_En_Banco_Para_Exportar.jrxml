@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Depositos_A_Bancos_Para_Exportar" pageWidth="612" pageHeight="7200" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8029f220-9e71-4f79-977f-3ca107ccf0ce">
+	<property name="ireport.zoom" value="1.6105100000000019"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select tb_empleado.folio as Folio
+       ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as NombreCompleto
+       ,isnull(tb_tipo_banco.nombre,'Sin Banco Para Deposito') as banco
+       ,tb_establecimiento.nombre as establecimiento
+ from tb_empleado
+left outer join tb_tipo_banco on tb_empleado.tipo_banco_id=tb_tipo_banco.folio
+left outer join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+
+where tb_empleado.status_imss=1 and tb_empleado.status=1
+
+order by NombreCompleto asc]]>
+	</queryString>
+	<field name="Folio" class="java.lang.Integer"/>
+	<field name="NombreCompleto" class="java.lang.String"/>
+	<field name="banco" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<columnHeader>
+		<band height="13">
+			<staticText>
+				<reportElement uuid="d3e1071f-67cb-4563-aa57-8f619b02a0e9" x="0" y="0" width="51" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Folio Emp.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4228f2d2-0a9e-4683-a1bf-7d08d70940c6" x="51" y="0" width="241" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nombre Completo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="11e4d22b-48ef-443c-bec4-75bef801fa72" x="292" y="0" width="150" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Banco]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9a7bc400-0024-4bfc-a656-42c787030c0a" x="442" y="0" width="130" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Establecimiento]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement uuid="98461835-3586-4b11-a15b-1e1a2c78bf9e" x="0" y="0" width="51" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Folio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="16bba8dd-5082-452d-b860-623a432dbc4f" x="51" y="0" width="241" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{NombreCompleto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e230c5f1-ac34-4cca-becd-6055e70d9207" x="292" y="0" width="150" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{banco}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="eb601709-1aa4-4c7d-b7bb-33997ba63b07" x="442" y="0" width="130" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

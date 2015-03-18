@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte_Prestamos" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="72b28e85-6b85-405a-a19e-a90c0b1b291a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DB_ADAPTER"/>
+	<property name="ireport.zoom" value="2.143588810000009"/>
+	<property name="ireport.x" value="504"/>
+	<property name="ireport.y" value="38"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[select
+tb_control_de_facturas_y_xml.proveedor
+,tb_control_de_facturas_y_xml.folio_factura
+,convert(varchar(20),tb_control_de_facturas_y_xml.fecha_factura,103)as fecha_factura
+,tb_control_de_facturas_y_xml.fecha_guardado as fecha_captura
+,convert(varchar(20),tb_control_de_facturas_y_xml.fecha_guardado,103)as fecha_guardado_corta
+,tb_control_de_facturas_y_xml.fecha_recibido
+,(case when (convert(varchar(20),tb_control_de_facturas_y_xml.fecha_recibido,103)='01/01/1900') then (select 'NO SE HA RECIBIDO')
+       else (convert(varchar(20),tb_control_de_facturas_y_xml.fecha_recibido,103)) end) as fecha_recibido_corta
+,(case when (datediff(day,tb_control_de_facturas_y_xml.fecha_guardado,tb_control_de_facturas_y_xml.fecha_recibido)<0)then (select 0)
+       else (datediff(day,tb_control_de_facturas_y_xml.fecha_guardado,tb_control_de_facturas_y_xml.fecha_recibido) ) end) as diferencia_en_dias
+
+,(case when (datediff(hour,tb_control_de_facturas_y_xml.fecha_guardado,tb_control_de_facturas_y_xml.fecha_recibido)<0)then (select 0)
+       else (datediff(hour,tb_control_de_facturas_y_xml.fecha_guardado,tb_control_de_facturas_y_xml.fecha_recibido ) ) end) as diferencia_en_minutos
+
+
+from tb_control_de_facturas_y_xml
+WHERE tb_control_de_facturas_y_xml.fecha_guardado>GETDATE()-30
+order by tb_control_de_facturas_y_xml.fecha_guardado desc,tb_control_de_facturas_y_xml.fecha_recibido desc]]>
+	</queryString>
+	<field name="proveedor" class="java.lang.String"/>
+	<field name="folio_factura" class="java.lang.String"/>
+	<field name="fecha_factura" class="java.lang.String"/>
+	<field name="fecha_captura" class="java.sql.Timestamp"/>
+	<field name="fecha_guardado_corta" class="java.lang.String"/>
+	<field name="fecha_recibido" class="java.sql.Timestamp"/>
+	<field name="fecha_recibido_corta" class="java.lang.String"/>
+	<field name="diferencia_en_dias" class="java.lang.Integer"/>
+	<field name="diferencia_en_minutos" class="java.lang.Integer"/>
+	<group name="Group2" keepTogether="true">
+		<groupExpression><![CDATA[$F{fecha_guardado_corta}]]></groupExpression>
+		<groupHeader>
+			<band height="16">
+				<frame>
+					<reportElement uuid="9da96497-8519-4d25-858d-de3d9f2646ec" mode="Opaque" x="0" y="0" width="802" height="16" forecolor="#B89F7D" backcolor="#FF6600"/>
+					<textField>
+						<reportElement uuid="3b6942ee-f1ea-4d0a-a73d-f62fb7db0410" x="2" y="0" width="222" height="16" forecolor="#FFFFFF"/>
+						<textElement>
+							<font size="12" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA["FECHA DE CAPTURA:"+$F{fecha_guardado_corta}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement uuid="c1f03114-4860-4c71-83a4-18d47e2c45d6" x="425" y="0" width="100" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[FECHA CAPTURA]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="9efe4602-30b8-4e2d-846a-a94c1ab57fc5" x="618" y="0" width="100" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[FECHA RECIBIDO]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="332caebe-1fde-4102-be9c-ac077b5c290b" x="721" y="0" width="33" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[DIAS]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="8359738d-4cb0-45c2-86b6-fe26267a710e" x="764" y="0" width="33" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[HR]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="12080276-8da8-4e8b-b551-cc8d5777ffc8" x="529" y="0" width="86" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[FECHA FACTURA]]></text>
+					</staticText>
+					<staticText>
+						<reportElement uuid="79125f74-311e-486f-b735-4a9b753c279c" x="344" y="0" width="81" height="16" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center">
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[FACTURA]]></text>
+					</staticText>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="1">
+				<line>
+					<reportElement uuid="65bc79b0-0f7a-4d03-9140-554189329500" positionType="FixRelativeToBottom" x="-2" y="0" width="555" height="1"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Fecha_de_Recibido">
+		<groupExpression><![CDATA[$F{fecha_recibido_corta}]]></groupExpression>
+		<groupFooter>
+			<band height="1"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="30" splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="36" splitType="Stretch">
+			<frame>
+				<reportElement uuid="f40033e7-3b11-4284-9dc5-639e231aceba" mode="Opaque" x="0" y="0" width="501" height="34" forecolor="#000080" backcolor="#000080"/>
+				<staticText>
+					<reportElement uuid="31bea70f-4e17-4539-aad9-9162208eeb59" style="Title" x="2" y="0" width="499" height="26"/>
+					<textElement>
+						<font size="22" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Reporte de Captura de Facturas]]></text>
+				</staticText>
+			</frame>
+			<image>
+				<reportElement uuid="ae937403-f1d8-4348-b356-94187037f95a" x="762" y="0" width="40" height="34"/>
+				<imageExpression><![CDATA["C:/SCOI/imagen/logPrincipal.png"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<frame>
+				<reportElement uuid="677d8f5a-892c-41a4-a81d-5648e093edbe" style="Row" mode="Opaque" x="0" y="0" width="802" height="14"/>
+				<textField>
+					<reportElement uuid="d3428ad3-ecc5-4a22-98e6-8705e8a67c81" x="0" y="0" width="344" height="14"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{proveedor}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="ce97d549-468a-4d79-910d-762611e9ec47" x="618" y="1" width="100" height="13"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{fecha_recibido_corta}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="bce496ac-ee85-480d-a369-1b35b8ff60a5" x="721" y="0" width="33" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{diferencia_en_dias}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="b969e38d-2283-4115-826d-3501c413b177" x="764" y="0" width="33" height="14"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{diferencia_en_minutos}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="8429028e-195c-403e-8238-d21fc4fc86d4" x="425" y="0" width="100" height="14"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{fecha_captura}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="3c46f06b-d2b4-4186-b51b-abd4e38e1d21" x="529" y="0" width="86" height="14"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{fecha_factura}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="04ca52cf-873e-4541-9473-ced4e0371c67" x="344" y="0" width="81" height="14"/>
+					<textElement/>
+					<textFieldExpression><![CDATA[$F{folio_factura}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="17" splitType="Stretch">
+			<frame>
+				<reportElement uuid="33abdeb0-e9f1-4c75-b348-6d21d5509224" mode="Opaque" x="0" y="1" width="802" height="14" forecolor="#D0B48E" backcolor="#000080"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="8b54e201-57d3-4808-9667-fe95152a5f9b" style="Column header" x="762" y="0" width="40" height="13" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="66b3c497-c5f2-4263-95fb-2ced5906c761" style="Column header" x="682" y="0" width="80" height="13" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="4eef6750-75cc-423a-83bf-fb0fc1be6790" style="Column header" x="2" y="0" width="89" height="13" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="8"/>
+	</summary>
+</jasperReport>

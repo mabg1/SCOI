@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Vouchers_Por_Establecimiento_De_Una_Fecha" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0d1a9393-3e68-4cfc-9bb2-cddaec78089b">
+	<property name="ireport.zoom" value="2.593742460100005"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString language="SQL">
+		<![CDATA[declare @fecha varchar(15)
+set @fecha='24/12/2014'
+
+select
+   tb_vauchers.ticket
+  ,tb_vauchers.folio_corte
+  ,tb_vauchers.asignacion
+  ,tb_vauchers.importe
+  ,tb_vauchers.retiro
+  ,tb_vauchers.afiliacion
+  ,tb_vauchers.numero_de_targeta
+  ,tb_vauchers.cod_aut as codigo_de_autorizacion
+  ,tb_vauchers.tipo_de_targeta
+  ,tb_vauchers.banco_emisor
+  ,tb_vauchers.tipo_de_operacion
+  ,tb_establecimiento.nombre as establecimiento
+  ,convert(varchar(15),tb_vauchers.fecha_aut,103) as fecha_Voucher
+  ,convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte,103) as fecha_de_corte
+  ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as cajero
+
+from tb_vauchers
+ left outer join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=tb_vauchers.folio_corte
+ left outer join tb_establecimiento on tb_establecimiento.folio=tb_alimentacion_de_cortes.folio_establecimiento_de_corte
+ left outer join tb_empleado on tb_empleado.folio=tb_alimentacion_de_cortes.folio_empleado
+where convert(varchar(15),tb_alimentacion_de_cortes.fecha_de_corte,103)=@fecha
+ORDER BY  tb_establecimiento.nombre]]>
+	</queryString>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="folio_corte" class="java.lang.String"/>
+	<field name="asignacion" class="java.lang.String"/>
+	<field name="importe" class="java.math.BigDecimal"/>
+	<field name="retiro" class="java.math.BigDecimal"/>
+	<field name="afiliacion" class="java.lang.String"/>
+	<field name="numero_de_targeta" class="java.lang.String"/>
+	<field name="codigo_de_autorizacion" class="java.lang.String"/>
+	<field name="tipo_de_targeta" class="java.lang.String"/>
+	<field name="banco_emisor" class="java.lang.String"/>
+	<field name="tipo_de_operacion" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="fecha_Voucher" class="java.lang.String"/>
+	<field name="fecha_de_corte" class="java.lang.String"/>
+	<field name="cajero" class="java.lang.String"/>
+	<variable name="Total_Importe_Por_Establecimiento" class="java.lang.Double" resetType="Group" resetGroup="establecimiento" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe}]]></variableExpression>
+	</variable>
+	<variable name="Total_de_Retiros" class="java.math.BigDecimal" resetType="Group" resetGroup="establecimiento" calculation="Sum">
+		<variableExpression><![CDATA[$F{retiro}]]></variableExpression>
+	</variable>
+	<variable name="Diferiencia" class="java.lang.Double" resetType="Group" resetGroup="establecimiento" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe}-$F{retiro}]]></variableExpression>
+	</variable>
+	<group name="establecimiento" keepTogether="true">
+		<groupExpression><![CDATA[$F{establecimiento}]]></groupExpression>
+		<groupHeader>
+			<band height="42">
+				<frame>
+					<reportElement mode="Opaque" x="0" y="3" width="721" height="24" forecolor="#000066" backcolor="#000066" uuid="1b5e40a2-b8a5-49cb-b2f5-464f29e572c3"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement style="SubTitle" x="2" y="0" width="695" height="24" forecolor="#FFFFFF" uuid="d42c374c-88c9-4f14-83b9-676317010ccb"/>
+						<textElement>
+							<font size="20" isBold="true"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<rectangle>
+					<reportElement x="725" y="3" width="59" height="24" backcolor="#666666" uuid="82a99def-08db-4349-8608-ee18c72b851f"/>
+					<graphicElement>
+						<pen lineWidth="0.0"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement style="Column header" x="54" y="27" width="46" height="15" forecolor="#000000" uuid="50cd6aab-f60b-4653-a604-65bc58e7a114"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[F.Corte]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" mode="Transparent" x="11" y="27" width="41" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="c2c3eb36-b8e2-425f-9e49-7437f5c0d72f"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Ticket]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="102" y="27" width="45" height="15" forecolor="#000000" uuid="af171d47-5fac-4b77-9a2d-b0a40a5ec7b0"/>
+					<textElement textAlignment="Right">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Importe]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="151" y="28" width="37" height="14" forecolor="#000000" uuid="a1bf7fb5-7a11-4322-9726-f7bcfeca6b23"/>
+					<textElement textAlignment="Right">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Retiro]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="194" y="28" width="50" height="14" forecolor="#000000" uuid="2ce12a5e-0110-47cb-8a37-45a3c31b2513"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Afiliacion]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="244" y="28" width="49" height="14" forecolor="#000000" uuid="54dd8117-41db-4776-837d-0e7fb90bdebc"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarjeta]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="295" y="28" width="75" height="14" forecolor="#000000" uuid="4d51a3b8-70fa-4999-9d13-bb0181b1683e"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Autorizacion]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="416" y="28" width="58" height="14" forecolor="#000000" uuid="e54acc52-5523-4273-9774-c4a291120ce6"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Banco]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="474" y="28" width="59" height="14" forecolor="#000000" uuid="11892b2f-5f9e-4bd2-b033-5e71dbd4a2c1"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Operacion]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="549" y="28" width="61" height="14" forecolor="#000000" uuid="79c6ff0a-17bd-4ab4-8eb9-c3fa61207888"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[F. Voucher]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="610" y="28" width="61" height="14" forecolor="#000000" uuid="7268c94d-e66a-4bc0-9a56-11f7fad2a9b4"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[F. Corte]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="Column header" x="671" y="28" width="102" height="14" forecolor="#000000" uuid="307309d8-fe4e-4a4e-9b8d-10a8dafbf5ae"/>
+					<textElement textAlignment="Center">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Cajero]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="14">
+				<textField pattern="###0.00;-###0.00">
+					<reportElement x="100" y="2" width="47" height="11" uuid="dde08d6e-7638-4e30-8836-cd7169155665"/>
+					<textElement textAlignment="Right">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_Importe_Por_Establecimiento}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="Column header" mode="Transparent" x="0" y="2" width="102" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="78f9837a-4dfa-4fdb-b642-cc8314a2d2e5"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Total Por Establecimiento:]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="FixRelativeToBottom" x="102" y="1" width="92" height="1" uuid="b792fdaf-bd70-4e20-b49f-6ff2bca2fb14"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineColor="#999999"/>
+					</graphicElement>
+				</line>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="147" y="2" width="47" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="5ff0b36d-e6c8-4e4c-bce4-34a9e5229281"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_de_Retiros}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="243" y="2" width="72" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="fdee5710-2bca-4907-bba0-dd0c1b43c72c"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Diferiencia}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="Column header" mode="Transparent" x="199" y="2" width="45" height="11" forecolor="#000000" backcolor="#FFFFFF" uuid="42af38c9-276f-4755-951b-ede7e64b7b84"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<text><![CDATA[Diferiencia:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="asignacion">
+		<groupExpression><![CDATA[$F{asignacion}]]></groupExpression>
+		<groupHeader>
+			<band height="23">
+				<textField>
+					<reportElement positionType="Float" x="0" y="0" width="802" height="22" forecolor="#000000" uuid="fb3e0d7c-3174-4ca7-822b-105c4bd36930"/>
+					<textElement>
+						<font fontName="Times New Roman" size="16" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Asignacion:"+$F{asignacion}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="68" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="398" height="66" forecolor="#000066" backcolor="#000066" uuid="fbf5873e-a663-43b8-9222-f928c18b033a"/>
+				<staticText>
+					<reportElement style="Title" positionType="FixRelativeToBottom" x="0" y="0" width="270" height="66" uuid="67cbf974-b7b0-40dd-b156-60549ea9198f"/>
+					<box topPadding="4" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Center" verticalAlignment="Bottom">
+						<font size="24" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Reporte de  Vouchers  Del: Por Establecimiento]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Transparent" x="270" y="1" width="126" height="33" forecolor="#FFFFFF" backcolor="#FFFFFF" uuid="d0686e42-ee20-4d93-91f3-3c71f56e2e42"/>
+					<textElement textAlignment="Left" verticalAlignment="Bottom" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="24" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_de_corte}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image>
+				<reportElement x="688" y="2" width="85" height="64" uuid="d443985b-dfca-49e0-91a5-1e0a233f4beb"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\tarjeta-de-credito-visa-icono-8242-96.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="2" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="5" y="0" width="797" height="10" uuid="010c3148-8890-4b13-875b-fa4d536da730"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="0" y="0" width="47" height="10" uuid="836f5f64-94ae-4f49-80f5-3c0963fbf403"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ticket}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="49" y="0" width="46" height="10" uuid="0d286abe-1cc1-4468-bc79-42ef5a963c22"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_corte}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement style="Detail" positionType="Float" x="97" y="0" width="45" height="10" uuid="77bcef7c-099d-456c-9032-c5b5082614ca"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{importe}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement style="Detail" positionType="Float" x="142" y="0" width="47" height="10" uuid="8ab041fd-884c-4a0e-9f3b-9ab3ac624fee"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{retiro}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="194" y="0" width="44" height="10" uuid="6939b166-5eb2-4551-ae8f-2ef3cd626d4f"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{afiliacion}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="239" y="0" width="61" height="10" uuid="f3dd1921-bec1-43eb-9a8a-8e5ddb0a3661"/>
+					<textElement>
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{numero_de_targeta}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="300" y="0" width="45" height="10" uuid="ee0d5f97-600e-4093-a3c2-7866555b4818"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{codigo_de_autorizacion}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="345" y="0" width="66" height="10" uuid="b38b5c53-0f8a-4f20-a1ff-7521e6b7b93c"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tipo_de_targeta}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="411" y="0" width="58" height="10" uuid="4241d6b2-5622-4d9b-a97b-f421204edac2"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{banco_emisor}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="469" y="0" width="75" height="10" uuid="d13b96b2-215f-4f4c-ad59-b016f6e0966f"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tipo_de_operacion}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="544" y="0" width="61" height="10" uuid="9a502cf5-f66b-4754-8f2e-428c9544e3e3"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_Voucher}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="605" y="0" width="61" height="10" uuid="e50c7481-63ad-4455-9c6e-e55c27e259e8"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha_de_corte}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="666" y="0" width="131" height="10" uuid="76ab7f91-86a0-4b63-a22f-f5857eda616e"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cajero}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="2" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="802" height="25" forecolor="#FF3300" backcolor="#FF6600" uuid="0372d22a-c43f-47ca-9b8c-8418c8811d00"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="722" y="3" width="40" height="20" forecolor="#FFFFFF" uuid="2b42ee08-ae4d-405f-a335-fd9d46788c9b"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="642" y="3" width="80" height="20" forecolor="#FFFFFF" uuid="019b4a7c-1eb3-4f20-9d0d-c6e135ee590f"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="2" y="3" width="197" height="20" forecolor="#FFFFFF" uuid="0972ca0f-e05a-453d-b38e-7988b28e076f"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

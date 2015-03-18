@@ -1,0 +1,42 @@
+este codigo va dentro de las propiedades de la tabla y funciona cuando la tabla biene llena
+
+//         //seleccionar solo 1 checBox de la la tabla  --------------------------------------------------------------------------
+//         public void setValueAt(Object value, int row, int col) {
+//             super.setValueAt(value, row, col);
+//             if (col == 3 && value.equals(Boolean.TRUE))
+//                 deselectValues(row, col);
+//         }
+//
+//         private void deselectValues(int selectedRow, int col) {
+//             for (int row = 0; row < getRowCount(); row++) {
+//                 if (getValueAt(row, col).equals(Boolean.TRUE)
+//                         && row != selectedRow) {
+//                     setValueAt(Boolean.FALSE, row, col);
+////                     fireTableCellUpdated(row, col);
+//                 }
+//             }
+//         }
+
+este codigo lo usamos en un mouseListener y se asigna a la tabla para seleccionar solo un checkbox en la tabla
+
+    //constructor
+    tablaFiltro.addMouseListener(opTablaFiltroSeleccion);
+    //funcion
+	MouseListener opTablaFiltroSeleccion = new MouseListener() {
+		public void mousePressed(MouseEvent e) {
+			int fila = tablaFiltro.getSelectedRow();
+			int columna = tablaFiltro.getSelectedColumn();
+			
+			for(int i=0; i<=tablaFiltro.getRowCount()-1; i++){
+				tablaFiltro.setValueAt(false, i, 3);
+			}
+			if(columna==5){
+				tablaconciliados.setValueAt(true, fila, columna);
+			}
+		}
+		public void mouseClicked(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+	};
+

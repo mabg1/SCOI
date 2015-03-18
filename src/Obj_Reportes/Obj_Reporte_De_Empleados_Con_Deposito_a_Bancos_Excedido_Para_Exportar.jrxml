@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Depositos_A_Bancos_Para_Exportar" pageWidth="612" pageHeight="7200" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8029f220-9e71-4f79-977f-3ca107ccf0ce">
+	<property name="ireport.zoom" value="1.6105100000000019"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select tb_empleado.folio,
+	   tb_empleado.nombre + ' ' + tb_empleado.ap_paterno + ' ' + tb_empleado.ap_materno as NombreCompleto,
+	   tb_establecimiento.nombre as establecimiento,
+	   isnull(tb_bancos.banamex,'0.0') as Banamex,
+	   isnull(tb_bancos.banorte,'0.0') as Banorte,
+	   isnull(tb_pre_listaraya.a_pagar,'0.0') as A_Pagar
+from tb_empleado
+inner join tb_establecimiento on tb_establecimiento.folio = tb_empleado.establecimiento_id
+left outer join tb_bancos on tb_bancos.folio_empleado = tb_empleado.folio
+left outer join tb_pre_listaraya on tb_pre_listaraya.folio_empleado = tb_empleado.folio
+
+where tb_empleado.status = 1 and tb_empleado.status_imss=0 and tb_empleado.tipo_banco_id>0 and tb_pre_listaraya.a_pagar<0
+
+order by NombreCompleto asc]]>
+	</queryString>
+	<field name="folio" class="java.lang.Integer"/>
+	<field name="NombreCompleto" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="Banamex" class="java.math.BigDecimal"/>
+	<field name="Banorte" class="java.math.BigDecimal"/>
+	<field name="A_Pagar" class="java.math.BigDecimal"/>
+	<columnHeader>
+		<band height="13">
+			<staticText>
+				<reportElement uuid="d3e1071f-67cb-4563-aa57-8f619b02a0e9" x="0" y="0" width="51" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Folio Emp.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="4228f2d2-0a9e-4683-a1bf-7d08d70940c6" x="51" y="0" width="241" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nombre Completo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="11e4d22b-48ef-443c-bec4-75bef801fa72" x="292" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Banamex]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9bbbd724-e312-4315-aba6-f627f8ae7574" x="362" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Banorte]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b699e24e-7c0c-4f38-91bb-9f1f725a6b7c" x="432" y="0" width="70" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[A Pagar]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement uuid="98461835-3586-4b11-a15b-1e1a2c78bf9e" x="0" y="0" width="51" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{folio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="16bba8dd-5082-452d-b860-623a432dbc4f" x="51" y="0" width="241" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{NombreCompleto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="083f39d7-6d49-4645-9cd9-af8bca06b97f" x="292" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Banamex}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="565d3652-92bb-496d-adb8-3c8f251dd8bf" x="362" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Banorte}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="6a227cf6-e8e5-4b8b-a653-208c2b96f448" x="432" y="0" width="70" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{A_Pagar}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,988 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_Para_Trabajo_De_Cortes" language="groovy" printOrder="Horizontal" pageWidth="791" pageHeight="612" orientation="Landscape" columnWidth="751" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="527b8c71-0150-4c5e-ab8d-96445c8baa40">
+	<property name="ireport.zoom" value="1.0263162364614145"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFE4BF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#FFF4E6">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="totales_de_concentrado_de_cortes" uuid="16f3e582-be0f-4538-a9f4-58d390b05d2d">
+		<parameter name="FOLIO_TRABAJO_PARAMETRO" class="java.lang.Integer"/>
+		<queryString>
+			<![CDATA[select TotalDelCorte,TotalRetiroCliente,TotalRecibosDeLuz,Izacel,Planes,Pines,CajaVerde,Depositos from tb_totales_de_trabajo_de_cortes  where folio_trabajo = $P{FOLIO_TRABAJO_PARAMETRO}]]>
+		</queryString>
+		<field name="TotalDelCorte" class="java.math.BigDecimal"/>
+		<field name="TotalRetiroCliente" class="java.math.BigDecimal"/>
+		<field name="TotalRecibosDeLuz" class="java.math.BigDecimal"/>
+		<field name="Izacel" class="java.math.BigDecimal"/>
+		<field name="Planes" class="java.math.BigDecimal"/>
+		<field name="Pines" class="java.math.BigDecimal"/>
+		<field name="CajaVerde" class="java.math.BigDecimal"/>
+		<field name="Depositos" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="folio_trabajo" class="java.lang.Integer" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[--declare @folio_trabajo_de_cortes int
+--set @folio_trabajo_de_cortes = 3
+select tb_establecimiento.nombre as ESTABLECIMIENTO
+		,tb_alimentacion_de_cortes.folio_corte as FOLIO_CORTE
+		,tb_alimentacion_de_cortes.asignaciones_en_corte as ASIGNACION
+,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as CAJERA
+,isnull(tb_alimentacion_de_cortes.efectivo,0) as TOTAL_EFECTIVO
+,(select isnull(sum(tb_retiros_a_cajeros.importe_retiro),0) from tb_retiros_a_cajeros where tb_retiros_a_cajeros.folio_corte = tb_alimentacion_de_cortes.folio_corte) as RETIROS_PROGRAMADOS
+,isnull(tb_alimentacion_de_cortes.cheques,0) as CHEQUES
+
+,(select isnull((tb_alimentacion_efectivo_cortes.cantidad*tb_alimentacion_efectivo_cortes.valor*tb_alimentacion_efectivo_cortes.valor_denominacion),0) from tb_alimentacion_efectivo_cortes where tb_alimentacion_efectivo_cortes.folio_denominacion = 13 and tb_alimentacion_efectivo_cortes.folio_corte = tb_alimentacion_de_cortes.folio_corte) as VALES
+,(select isnull((tb_alimentacion_efectivo_cortes.cantidad*tb_alimentacion_efectivo_cortes.valor*tb_alimentacion_efectivo_cortes.valor_denominacion),0) from tb_alimentacion_efectivo_cortes where tb_alimentacion_efectivo_cortes.folio_denominacion = 12 and tb_alimentacion_efectivo_cortes.folio_corte = tb_alimentacion_de_cortes.folio_corte) as DOLARES
+
+,(select isnull(sum(tb_captura_fuente_sodas.importe),0) from tb_captura_fuente_sodas where tb_captura_fuente_sodas.folio_corte = tb_alimentacion_de_cortes.folio_corte) AS FUENTE_DE_SODAS
+,SUM(isnull(tb_vauchers.importe,0)-isnull(tb_vauchers.retiro,0)) as PIN_PAD
+,isnull(tb_alimentacion_de_cortes.corte_del_sistema,0) as TOTAL_CORTE
+,isnull(tb_alimentacion_de_cortes.diferiencia_de_corte,0) as DIFERENCIA
+
+,isnull(sum(tb_vauchers.retiro),0) as RETIROS_CLIENTE
+,isnull(tb_alimentacion_de_cortes.tiempo_aire,0) as TIEMPO_AIRE
+,isnull(tb_alimentacion_de_cortes.recibo_de_luz,0) as RECIBOS_LUZ
+,isnull(tb_alimentacion_de_cortes.apartados,0) as APARTADOS
+,convert(varchar(20),tb_alimentacion_de_cortes.fecha_de_corte,103)+' '+convert(varchar(20),tb_alimentacion_de_cortes.fecha_de_corte,108) as FECHA_DE_CORTE
+,tb_alimentacion_de_cortes.observacion as OBSERVACION
+,tb_alimentacion_de_cortes.folio_trabajo_de_cortes AS FOLIO_TRABAJO_DE_CORTE
+,CASE WHEN (tb_alimentacion_de_cortes.clasificador)='CV' THEN 'CAJA VERDE'
+ELSE 'NORMAL' END AS CLASIFICADOR_TRABAJO_DE_CORTE
+,convert(varchar(20),tb_alimentacion_de_cortes.fecha_de_trabajo,103) as FECHA_TRABAJO_DE_CORTE
+
+from tb_alimentacion_de_cortes
+
+inner join tb_establecimiento on tb_establecimiento.folio = tb_alimentacion_de_cortes.folio_establecimiento_de_corte
+--inner join tb_tabla_de_asignaciones_para_cortes on tb_tabla_de_asignaciones_para_cortes.folio_corte = tb_alimentacion_de_cortes.folio_corte
+inner join tb_empleado on tb_empleado.folio = tb_alimentacion_de_cortes.folio_empleado
+left outer join tb_vauchers on tb_vauchers.folio_corte = tb_alimentacion_de_cortes.folio_corte
+
+where tb_alimentacion_de_cortes.folio_trabajo_de_cortes =$P{folio_trabajo}--@folio_trabajo_de_cortes
+group by tb_establecimiento.nombre
+		,tb_alimentacion_de_cortes.folio_corte
+		,tb_alimentacion_de_cortes.asignaciones_en_corte
+		,tb_alimentacion_de_cortes.efectivo
+		,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno
+		,tb_alimentacion_de_cortes.cheques
+		,tb_alimentacion_de_cortes.tiempo_aire
+		,tb_alimentacion_de_cortes.recibo_de_luz
+		,tb_alimentacion_de_cortes.corte_del_sistema
+		,tb_alimentacion_de_cortes.apartados
+		,tb_alimentacion_de_cortes.diferiencia_de_corte
+		,tb_alimentacion_de_cortes.fecha_de_corte
+		,tb_alimentacion_de_cortes.observacion
+		,tb_alimentacion_de_cortes.folio_trabajo_de_cortes
+		,tb_alimentacion_de_cortes.clasificador
+		,tb_alimentacion_de_cortes.fecha_de_trabajo
+order by tb_alimentacion_de_cortes.clasificador,tb_establecimiento.nombre,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno]]>
+	</queryString>
+	<field name="ESTABLECIMIENTO" class="java.lang.String"/>
+	<field name="FOLIO_CORTE" class="java.lang.String"/>
+	<field name="ASIGNACION" class="java.lang.String"/>
+	<field name="CAJERA" class="java.lang.String"/>
+	<field name="TOTAL_EFECTIVO" class="java.math.BigDecimal"/>
+	<field name="RETIROS_PROGRAMADOS" class="java.math.BigDecimal"/>
+	<field name="CHEQUES" class="java.math.BigDecimal"/>
+	<field name="VALES" class="java.lang.Double"/>
+	<field name="DOLARES" class="java.lang.Double"/>
+	<field name="FUENTE_DE_SODAS" class="java.math.BigDecimal"/>
+	<field name="PIN_PAD" class="java.math.BigDecimal"/>
+	<field name="TOTAL_CORTE" class="java.math.BigDecimal"/>
+	<field name="DIFERENCIA" class="java.math.BigDecimal"/>
+	<field name="RETIROS_CLIENTE" class="java.math.BigDecimal"/>
+	<field name="TIEMPO_AIRE" class="java.math.BigDecimal"/>
+	<field name="RECIBOS_LUZ" class="java.math.BigDecimal"/>
+	<field name="APARTADOS" class="java.math.BigDecimal"/>
+	<field name="FECHA_DE_CORTE" class="java.lang.String"/>
+	<field name="OBSERVACION" class="java.lang.String"/>
+	<field name="FOLIO_TRABAJO_DE_CORTE" class="java.lang.Integer"/>
+	<field name="CLASIFICADOR_TRABAJO_DE_CORTE" class="java.lang.String"/>
+	<field name="FECHA_TRABAJO_DE_CORTE" class="java.lang.String"/>
+	<variable name="efectivo" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_EFECTIVO}]]></variableExpression>
+	</variable>
+	<variable name="retirosProgramados" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{RETIROS_PROGRAMADOS}]]></variableExpression>
+	</variable>
+	<variable name="cheques" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{CHEQUES}]]></variableExpression>
+	</variable>
+	<variable name="vales" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALES}]]></variableExpression>
+	</variable>
+	<variable name="dolares" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{DOLARES}]]></variableExpression>
+	</variable>
+	<variable name="fuenteSodas" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{FUENTE_DE_SODAS}]]></variableExpression>
+	</variable>
+	<variable name="pin_pad" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{PIN_PAD}]]></variableExpression>
+	</variable>
+	<variable name="totalCorte" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_CORTE}]]></variableExpression>
+	</variable>
+	<variable name="diferencia" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{DIFERENCIA}]]></variableExpression>
+	</variable>
+	<variable name="retiroCliente" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{RETIROS_CLIENTE}]]></variableExpression>
+	</variable>
+	<variable name="ta" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{TIEMPO_AIRE}]]></variableExpression>
+	</variable>
+	<variable name="rLuz" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{RECIBOS_LUZ}]]></variableExpression>
+	</variable>
+	<variable name="apartados" class="java.math.BigDecimal" resetType="Group" resetGroup="ESTABLECIMIENTO" calculation="Sum">
+		<variableExpression><![CDATA[$F{APARTADOS}]]></variableExpression>
+	</variable>
+	<variable name="efectivoGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_EFECTIVO}]]></variableExpression>
+	</variable>
+	<variable name="retirosProgramadosGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{RETIROS_PROGRAMADOS}]]></variableExpression>
+	</variable>
+	<variable name="chequesGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{CHEQUES}]]></variableExpression>
+	</variable>
+	<variable name="valesGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALES}]]></variableExpression>
+	</variable>
+	<variable name="dolaresGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{DOLARES}]]></variableExpression>
+	</variable>
+	<variable name="fuenteSodasGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{FUENTE_DE_SODAS}]]></variableExpression>
+	</variable>
+	<variable name="pin_padGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{PIN_PAD}]]></variableExpression>
+	</variable>
+	<variable name="totalCorteGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_CORTE}]]></variableExpression>
+	</variable>
+	<variable name="diferenciaGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{DIFERENCIA}]]></variableExpression>
+	</variable>
+	<variable name="retiroClienteGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{RETIROS_CLIENTE}]]></variableExpression>
+	</variable>
+	<variable name="taGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{TIEMPO_AIRE}]]></variableExpression>
+	</variable>
+	<variable name="rLuzGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{RECIBOS_LUZ}]]></variableExpression>
+	</variable>
+	<variable name="apartadosGral" class="java.math.BigDecimal" resetType="Group" resetGroup="CLASIFICADOR_TRABAJO_DE_CORTE" calculation="Sum">
+		<variableExpression><![CDATA[$F{APARTADOS}]]></variableExpression>
+	</variable>
+	<variable name="totalesDeCorte" class="java.math.BigDecimal"/>
+	<variable name="PARAMETRO" class="java.lang.Integer">
+		<variableExpression><![CDATA[$F{FOLIO_TRABAJO_DE_CORTE}]]></variableExpression>
+	</variable>
+	<group name="CLASIFICADOR_TRABAJO_DE_CORTE">
+		<groupExpression><![CDATA[$F{CLASIFICADOR_TRABAJO_DE_CORTE}]]></groupExpression>
+		<groupHeader>
+			<band height="22">
+				<frame>
+					<reportElement uuid="e92aff46-2257-4bbf-b2c1-58ca4f9baeb7" mode="Opaque" x="0" y="1" width="751" height="20" forecolor="#B89F7D" backcolor="#0000CC"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement uuid="5da90ce0-9d12-4fa1-95dc-6f0675a5c700" style="SubTitle" x="2" y="0" width="650" height="20" forecolor="#FFFFFF"/>
+						<textElement>
+							<font size="17" isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{CLASIFICADOR_TRABAJO_DE_CORTE}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="17">
+				<rectangle radius="10">
+					<reportElement uuid="aa83158e-c267-4933-b274-88a6f25efe1a" x="230" y="1" width="519" height="15" forecolor="#FFFFFF" backcolor="#DEEDFC"/>
+				</rectangle>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="3413e846-2f7c-436a-b48d-407d957f89ee" x="242" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{efectivoGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="00adfd29-3205-40c6-ab88-a43fb64f0396" x="281" y="3" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{retirosProgramadosGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="ae7e8988-61ca-4a3e-bcae-7139709a17fb" x="320" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{chequesGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="e21e2bfc-639c-4b0b-938f-d76e3b5d3735" x="359" y="3" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{valesGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="02fca726-6bb1-4cf8-906c-cc3d23ceacdc" x="398" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{dolaresGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="0c8da37d-df1b-4cd7-8628-5e3b0ce90907" x="437" y="3" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{fuenteSodasGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="e4071480-e124-4e2d-8133-efd226ad61c1" x="476" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{pin_padGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="85d5213c-aa14-411a-8f4b-5f167630a08c" x="513" y="3" width="42" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totalCorteGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="c9e12feb-2836-4d27-b440-19e053f5dc12" x="555" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{diferenciaGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="b40970c5-7c32-40f2-8003-082eeb0c966d" x="593" y="3" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{retiroClienteGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="d18b4936-19a1-40fa-964d-bf64b24a0ed5" x="633" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{taGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="8c4a7a1f-3211-4d48-8bb0-02d878b405f6" x="672" y="3" width="34" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{rLuzGral}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="c0207d08-5288-4edf-bb03-f7607f5089c4" x="708" y="3" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{apartadosGral}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="ESTABLECIMIENTO" keepTogether="true">
+		<groupExpression><![CDATA[$F{ESTABLECIMIENTO}]]></groupExpression>
+		<groupHeader>
+			<band height="26">
+				<rectangle>
+					<reportElement uuid="5a2ac3d8-8053-4ce4-817a-239ff608168e" x="0" y="1" width="242" height="15" forecolor="#FFCC66" backcolor="#FFCC66"/>
+				</rectangle>
+				<textField>
+					<reportElement uuid="57919b5d-ada8-42ae-93a8-4cc9a8a6d932" positionType="Float" x="1" y="1" width="241" height="15" forecolor="#000000"/>
+					<textElement>
+						<font fontName="Times New Roman" size="13" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ESTABLECIMIENTO}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="6aee85ce-034d-4eb0-8f49-74b5f92adb96" style="Column header" x="2" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[F.CORTE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="089bbd4d-5113-40be-80e9-660a2f370cdc" style="Column header" x="41" y="16" width="58" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[ASIGN]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="584446e7-28ff-422d-8e18-122ba4c1e2e9" style="Column header" x="99" y="16" width="140" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CAJERA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="e47334ff-87ac-4e32-8a8f-a64613899cee" style="Column header" x="240" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[T.EFECT]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="1dcd00aa-851a-4661-88e6-c7a0d5b1146f" style="Column header" x="279" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[R.PROG]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="7e0e1c3c-6efd-4ddc-95c8-c2a3378b7f4f" style="Column header" x="318" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CHEQUES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="cc4b699a-2745-4959-877e-601203436b2c" style="Column header" x="357" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[VALES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="fbfd4b88-a4ff-4baa-9160-367606f076f1" style="Column header" x="396" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[DOLARES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="afdc401e-0ad8-4eb3-ad11-111f80b8f8cb" style="Column header" x="435" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[F.SODAS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="34c12d9a-c7b3-425a-be98-c591af43bcc8" style="Column header" x="474" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[PIN_PAD]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="74ddae83-fa51-4000-a79c-85271b76a37e" style="Column header" x="513" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[T.CORTE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="ea3135be-7b08-4cef-80b8-34d38537ae45" style="Column header" x="553" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[DIFER]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="6a7e125f-a7af-4614-afb8-8b5fa100c5d8" style="Column header" x="591" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[R.CLT]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="e997dc2b-0e8c-4c74-83cb-84da11dd523e" style="Column header" x="629" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="5b95ce58-1ce1-4973-9feb-f6d86fb56466" style="Column header" x="668" y="16" width="39" height="10" forecolor="#666666"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[R.LUZ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="b01f4a5a-73dd-4b1e-8d21-4d355dd84d56" style="Column header" x="706" y="16" width="39" height="10" forecolor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[APART]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<group name="Totales Por Establecimiento">
+		<groupExpression><![CDATA[$F{ESTABLECIMIENTO}]]></groupExpression>
+		<groupFooter>
+			<band height="15">
+				<rectangle radius="10">
+					<reportElement uuid="81779e9f-c53d-4bdd-a0f3-c83b726c04a7" x="231" y="0" width="519" height="15"/>
+				</rectangle>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="399dba4b-f288-4625-aaeb-eb82b0aaade1" x="555" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="false" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{diferencia}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="eeb20b0c-1f13-4bd0-95bd-0d9d1cbb87f1" x="281" y="1" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{retirosProgramados}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="e0d2191d-c554-42ef-875b-41f3bfe2af04" x="707" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{apartados}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="8fac6112-a2b5-4ca7-a6d3-6fcb87ccbdbb" x="320" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{cheques}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="9db2d17f-feee-42eb-9337-48cbac3507ad" x="476" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{pin_pad}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="cc78e13b-ce15-456d-bcbb-459bc7505cca" x="398" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{dolares}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="7962a2a8-e0b8-4d90-98a9-47bcdd0cadf3" x="672" y="1" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{rLuz}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="d9664707-5751-4552-8734-d8c3ebd50f78" x="437" y="1" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{fuenteSodas}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="d2e27592-a4ae-4076-8349-19ff1fcea083" x="593" y="1" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{retiroCliente}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="a6ff9de4-e994-4aab-a70e-547e343a6cbe" x="513" y="1" width="42" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totalCorte}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="bfb13240-8ca4-4e3e-b3f5-1e15942584ef" x="359" y="1" width="35" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{vales}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="6f68017a-117e-4215-9fd9-e51aa55566ae" x="633" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ta}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="7e89011e-6095-4081-8e42-dfd26ac60107" x="242" y="1" width="35" height="12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{efectivo}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="67" splitType="Stretch">
+			<frame>
+				<reportElement uuid="6e02700b-c9b7-4cd0-b93a-b8a36783f2f2" mode="Opaque" x="0" y="0" width="668" height="46" backcolor="#0000CC"/>
+				<ellipse>
+					<reportElement uuid="4adce871-4377-433b-b5ac-a77c3cb54790" x="616" y="12" width="32" height="32" forecolor="#FFCC66"/>
+				</ellipse>
+				<staticText>
+					<reportElement uuid="e3fcdde4-d295-417d-9212-79d2e1cdd53c" style="Title" x="2" y="0" width="608" height="45"/>
+					<box topPadding="4" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+					<textElement verticalAlignment="Bottom">
+						<font size="30" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Concentrado De Cortes]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="d15395ec-5222-4e92-b282-25f0c5bf4095" style="Column header" x="592" y="0" width="76" height="12" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FOLIO]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="4615933f-304c-4b06-996d-1749d3027c8a" style="Detail" positionType="Float" x="616" y="12" width="33" height="32" forecolor="#0000CC"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="11" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FOLIO_TRABAJO_DE_CORTE}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement uuid="e422fd71-ff9f-47bb-ab49-f60f7ae5f874" x="676" y="1" width="63" height="64"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\Money-Calculator-icon128.jpg"]]></imageExpression>
+			</image>
+			<frame>
+				<reportElement uuid="3f759bb2-af77-4843-afe4-8131f295731d" mode="Opaque" x="0" y="50" width="668" height="15" forecolor="#000000" backcolor="#FFCC66"/>
+				<staticText>
+					<reportElement uuid="95740653-140f-4070-a178-80be0dd8a6b4" style="Column header" x="435" y="2" width="151" height="12" forecolor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<text><![CDATA[FECHA DE TRABAJO DE CORTE:    ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="46dec046-d18c-4cf2-87de-380c4711bc41" style="Detail" positionType="Float" x="586" y="2" width="76" height="12"/>
+					<textElement verticalAlignment="Middle">
+						<font size="12"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FECHA_TRABAJO_DE_CORTE}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="2" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement uuid="40a0a3bd-2cfb-412e-b73f-376ec5122b48" style="Row" mode="Opaque" x="0" y="0" width="750" height="15"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="dce8b7b3-e4cc-4447-be56-8b4919eeb9ca" style="Detail" positionType="Float" x="0" y="0" width="39" height="15"/>
+					<textElement>
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FOLIO_CORTE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="9398c5ea-9ef9-498e-9311-782090fddf9e" style="Detail" positionType="Float" x="39" y="0" width="60" height="15"/>
+					<textElement textAlignment="Center">
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ASIGNACION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="1ba21007-0cb8-442a-a762-671c31b00d89" style="Detail" positionType="Float" x="99" y="0" width="140" height="15"/>
+					<textElement>
+						<font size="7"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{CAJERA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="9544e683-959f-4443-8435-68cd82b710d0" style="Detail" positionType="Float" x="242" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right" markup="none">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TOTAL_EFECTIVO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="5b9c84da-3016-4276-8241-65fc9cf253af" style="Detail" positionType="Float" x="281" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{RETIROS_PROGRAMADOS}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="dbbcb387-f1d8-4205-9c87-ed419156c874" style="Detail" positionType="Float" x="321" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{CHEQUES}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="0521e605-6bf3-4e55-8d88-5ffaaba39deb" style="Detail" positionType="Float" x="360" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{VALES}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="04641da6-c568-4951-bc7f-23259f8e56f1" style="Detail" positionType="Float" x="398" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DOLARES}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="3c3e7be7-e328-4f3e-8f8c-5bc9a262a3f1" style="Detail" positionType="Float" x="437" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FUENTE_DE_SODAS}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="5fca9fee-fd39-4b2c-b980-aa9104032391" style="Detail" positionType="Float" x="476" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{PIN_PAD}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="1f5a3b9d-9c8a-4d0f-81d2-8e71fa618e60" style="Detail" positionType="Float" x="516" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TOTAL_CORTE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="6fa32b54-f911-40b9-9de0-f71968fcdb55" style="Detail" positionType="Float" x="555" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{DIFERENCIA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="48dad78a-f8b7-4136-b409-07192b8e5a0b" style="Detail" positionType="Float" x="593" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{RETIROS_CLIENTE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="f940a797-26a1-4411-b16d-6295f76875d8" style="Detail" positionType="Float" x="633" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TIEMPO_AIRE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="160c33d7-fdc1-4a47-b2d7-2784d0410084" style="Detail" positionType="Float" x="671" y="0" width="35" height="15" forecolor="#000000"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{RECIBOS_LUZ}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="71e9b404-a94d-4158-98d0-8a87bdd9aa59" style="Detail" positionType="Float" x="706" y="0" width="35" height="15"/>
+					<textElement textAlignment="Right">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{APARTADOS}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="031736ca-5dc9-41e1-9e83-2872918a551c" x="100" y="7" width="22" height="8"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[OBS: ]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="862beb5f-dc14-47bf-854d-6b902f01fdd4" x="121" y="8" width="140" height="7"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{OBSERVACION}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="e1ecb0c6-102a-4651-aec8-830cae7bc33f" x="4" y="7" width="74" height="8"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="6"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{FECHA_DE_CORTE}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement uuid="4ce850db-9c19-4f81-8585-1cc97baefbd4" x="278" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="e54eed65-7849-4412-88aa-428e06fb6289" x="240" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="968c2797-f311-45ab-88f1-f969a7c3c0c4" x="318" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="25c98be9-1d5b-448b-8005-ddd82ab84dea" x="357" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="f3e4e130-39a8-4e39-97d2-776810a11ece" x="513" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="eded149a-fa05-4dd4-8fe9-6a8fb878b0f8" x="474" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="acb681e9-465c-44c0-8e9b-549a16897fee" x="396" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="92a19172-1353-41b0-aff8-761c066cb033" x="434" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="7571abc0-9ec6-4439-99db-68a463985b1b" x="669" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="71c21ab8-3307-4a95-a853-57f6d7da3b45" x="629" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="76880279-ef09-43b4-a144-941011e6bbff" x="553" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="f58fa9a8-3807-4daa-8a98-83934794927c" x="591" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+				<line>
+					<reportElement uuid="4ed453ca-72b7-4f99-811d-fc5ff54b6cc9" x="706" y="0" width="1" height="14" forecolor="#E2DFDF"/>
+				</line>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="2" splitType="Stretch">
+			<line>
+				<reportElement uuid="641ca75e-2393-485e-9a9f-eebbb0ae37a5" positionType="FixRelativeToBottom" x="0" y="0" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="19" splitType="Stretch">
+			<frame>
+				<reportElement uuid="acbdd618-b6cf-4f9e-9b2e-97b285280b4d" mode="Opaque" x="0" y="1" width="751" height="18" forecolor="#D0B48E" backcolor="#0000CC"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="61e1e1e6-ba01-41c6-95a5-2e09bd442a76" style="Column header" x="708" y="1" width="40" height="15" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="14d5b6bd-47b3-42b1-92cc-61247a064453" style="Column header" x="628" y="1" width="80" height="15" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="7b0670bb-33fd-4488-b593-dac773d3208b" style="Column header" x="3" y="1" width="197" height="15" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="68" splitType="Stretch">
+			<componentElement>
+				<reportElement uuid="f438c736-3422-4f2f-9b1e-679853bbd4ab" x="17" y="3" width="416" height="60" forecolor="#000000" backcolor="#FFCC99"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical" ignoreWidth="true">
+					<datasetRun subDataset="totales_de_concentrado_de_cortes" uuid="044decf3-9459-476a-9a72-b9ff390deee2">
+						<datasetParameter name="FOLIO_TRABAJO_PARAMETRO">
+							<datasetParameterExpression><![CDATA[$F{FOLIO_TRABAJO_DE_CORTE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="60" width="416">
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="05755ca9-85c4-4b10-a0fe-1c4ddc9e0e64" x="62" y="2" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{Depositos}]]></textFieldExpression>
+						</textField>
+						<staticText>
+							<reportElement uuid="321416ff-4bc3-4feb-8f38-d91ac731bd9a" style="Column header" x="162" y="24" width="110" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[TOTAL RECIBOS DE LUZ:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="31b681f0-51b9-4ab2-bf99-60f37368c38c" style="Column header" x="2" y="13" width="60" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[TIEMPO AIRE:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="8c961588-6109-441c-900e-1a2ce653ced7" style="Column header" x="2" y="24" width="60" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[PLAN TELCEL:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="598bac36-b567-4f64-848c-a29fc2850333" style="Column header" x="2" y="2" width="60" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[DEPOSITOS:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="3df3f6ad-95ff-44ba-82f0-aa0c5e69622b" style="Column header" x="162" y="2" width="110" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[TOTAL DEL CORTE:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="36124df6-9ac9-4013-9f02-dd883b88cf9c" style="Column header" x="2" y="46" width="60" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[CAJA VERDE:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="def6726a-9c3f-408e-9d8e-3fc31b967fc4" style="Column header" x="2" y="35" width="60" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[PINES:]]></text>
+						</staticText>
+						<staticText>
+							<reportElement uuid="7af368d7-539a-441f-a9cf-c4cde4294bf8" style="Column header" x="162" y="13" width="110" height="10" forecolor="#000000"/>
+							<textElement textAlignment="Left" verticalAlignment="Middle">
+								<font size="8" isBold="true"/>
+							</textElement>
+							<text><![CDATA[TOTAL RETIRO CLIENTES: :]]></text>
+						</staticText>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="876b06e3-dca6-4272-ad00-7d2ead0b5469" x="62" y="13" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{Izacel}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="21241664-dc5f-4f69-b75e-9a289f930b09" x="62" y="24" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{Planes}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="c1500ecc-8bdd-4c35-96f3-c14556b9931c" x="62" y="35" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{Pines}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="39342af1-4cd8-49d2-bd75-e928cf9ee19e" x="62" y="46" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{CajaVerde}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="9fc6551f-e5a1-46af-a73a-b888162bb3dc" x="272" y="2" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{TotalDelCorte}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="cf981c30-db4c-44fd-a001-ccc330a24ae6" x="272" y="13" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{TotalRetiroCliente}]]></textFieldExpression>
+						</textField>
+						<textField pattern="###0.00;-###0.00">
+							<reportElement uuid="52e1f20e-5f0f-4d0d-9698-611725c0452f" x="272" y="24" width="60" height="10"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font size="7" isBold="true"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{TotalRecibosDeLuz}]]></textFieldExpression>
+						</textField>
+						<line>
+							<reportElement uuid="dea56d6c-f222-43ff-b416-799312b27038" x="2" y="12" width="120" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="89f9b6cb-bde1-4448-8105-e6a9d83f8d9d" x="2" y="23" width="120" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="8c3556c0-5913-445e-b7fb-835b3e5442c8" x="2" y="34" width="120" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="fbbb03e0-6189-4ae3-8715-512f18b545cd" x="2" y="45" width="120" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="f3f052f8-ad8b-4149-9da1-54c535cb5b27" x="162" y="12" width="170" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="8d00258f-3460-4d08-ab88-1c1f69c4231f" x="162" y="23" width="170" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="94b6a72b-ec2a-4925-995c-ce602444e9e6" x="2" y="56" width="120" height="1"/>
+						</line>
+						<line>
+							<reportElement uuid="8f628848-0ebb-4f1c-b598-0b19e1d186e9" x="162" y="33" width="170" height="1"/>
+						</line>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Cobro_De_CFE_Por_Asignacion" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1741ca6b-1eec-4f8f-bcd2-f4514caff825">
+	<property name="ireport.zoom" value="1.9487171000000028"/>
+	<property name="ireport.x" value="388"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Times New Roman" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<queryString language="SQL">
+		<![CDATA[declare @asignacion varchar(50), @Fecha varchar(30)
+	set @asignacion= 'S5-15213'
+	set @Fecha =(SELECT TOP 1  CONVERT (VARCHAR(20),abonos_clientes.fecha,103) AS Fecha
+                      FROM  abonos_clientes with(nolock)
+                          LEFT OUTER JOIN  facremtick with(nolock) ON  facremtick.folio=abonos_clientes.folio_aplicado
+				          LEFT OUTER JOIN  asignaciones_cajeros ON asignaciones_cajeros.folio=facremtick.folio_cajero
+				      WHERE  facremtick.status <> 'C' and facremtick.cond_pago = '4' AND facremtick.folio_cajero=@asignacion and abonos_clientes.status='V' and abonos_clientes.fecha>=asignaciones_cajeros.fecha_inicial and abonos_clientes.fecha<=asignaciones_cajeros.fecha_liquidacion)
+
+          SELECT  facremtick.folio as ticket
+                 ,entysal.total as ta
+			     ,convert(varchar(20),facremtick.fecha,103)as fecha
+                 ,productos.descripcion as descripcion_producto
+                 ,comentarios_ventas.comentario
+                 ,@asignacion as asignacion
+         	FROM facremtick with (nolock)
+				INNER JOIN entysal on entysal.folio=facremtick.folio
+                INNER JOIN productos on productos.cod_prod=entysal.cod_prod
+                LEFT OUTER JOIN comentarios_ventas on comentarios_ventas.folio=facremtick.folio
+     	      WHERE (facremtick.folio_cajero = @asignacion and entysal.cod_prod='52384')
+	UNION all
+	     SELECT  facremtick.folio as ticket
+                ,entysal.total*-1 as ta
+	  		    ,convert(varchar(20),facremtick.fecha,103)as fecha
+                ,productos.descripcion as descripcion_producto
+                ,comentarios_ventas.comentario
+                ,@asignacion as asignacion
+			FROM facremtick   with (nolock)
+				INNER JOIN entysal on entysal.folio=facremtick.folio
+                INNER JOIN productos on productos.cod_prod=entysal.cod_prod
+                LEFT OUTER JOIN comentarios_ventas on comentarios_ventas.folio=facremtick.folio
+ 			  WHERE ( (facremtick.status = 'C') AND (facremtick.numdpc = 'FAC' + @asignacion)  and entysal.cod_prod='52384' )]]>
+	</queryString>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="ta" class="java.math.BigDecimal"/>
+	<field name="fecha" class="java.lang.String"/>
+	<field name="descripcion_producto" class="java.lang.String"/>
+	<field name="comentario" class="java.lang.String"/>
+	<field name="asignacion" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="67" splitType="Stretch">
+			<frame>
+				<reportElement uuid="f1c83f33-6b4e-47e8-82b4-d1156f01352e" mode="Opaque" x="2" y="0" width="451" height="46" backcolor="#000066"/>
+				<staticText>
+					<reportElement uuid="830b9009-fd58-44d7-aa65-a3ffc8ca05a6" style="Title" x="0" y="0" width="451" height="46"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="30" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Cobros de CFE]]></text>
+				</staticText>
+			</frame>
+			<image>
+				<reportElement uuid="167dd5d4-ed9a-4255-8a56-6e51af4a774f" x="478" y="0" width="76" height="65"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\tu-factura_cfe.jpg"]]></imageExpression>
+			</image>
+			<frame>
+				<reportElement uuid="38c64a44-738f-4882-bb86-2c665d0410f8" mode="Opaque" x="2" y="49" width="451" height="17" backcolor="#000066"/>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="8727e598-6c7a-4a16-a994-572410a1a8a3" style="Column header" x="53" y="0" width="31" height="12" forecolor="#000000"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Ticket]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5d8b34c7-127d-426e-aa43-c027774b7315" style="Column header" x="417" y="0" width="50" height="12" forecolor="#000000"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Importe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="02437737-5821-4d5e-b631-e6a9ccff2594" style="Column header" x="467" y="0" width="88" height="12" forecolor="#000000"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Comentario Venta]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="07603641-942a-4ffa-a402-b6ae00978252" x="2" y="14" width="553" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="515e1dc5-1e1a-4104-a6da-fff3abbc77fe" style="Column header" x="361" y="0" width="56" height="12" forecolor="#000000"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Fecha Venta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="70158581-386c-41c8-ba7b-fd5fb45d22b0" x="1" y="0" width="50" height="12"/>
+				<textElement>
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[Asignacion]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement uuid="b2580233-b09f-4e81-94d1-ace5838a7479" style="Row" mode="Opaque" x="0" y="0" width="555" height="15"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="f091f75e-5822-4204-91be-5826c0284501" style="Detail" positionType="Float" x="51" y="0" width="61" height="14"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ticket}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="591cb539-2544-45b2-9f8e-9f26f5e5548d" style="Detail" positionType="Float" x="468" y="0" width="87" height="14"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{comentario}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00">
+					<reportElement uuid="a85f596b-224b-4b53-99fb-63a691b64401" style="Detail" positionType="Float" x="417" y="0" width="50" height="14"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ta}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement uuid="f1e37da0-14d2-44bb-961d-e60b8fe23699" style="Detail" positionType="Float" x="112" y="0" width="248" height="14"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{descripcion_producto}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="###0.00;-###0.00" isBlankWhenNull="false">
+					<reportElement uuid="8d0fed66-7a83-4380-aaae-d45fdc13887a" style="Detail" positionType="Float" mode="Transparent" x="361" y="0" width="56" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+						<font fontName="Times New Roman" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="d4672f60-dfc2-47bf-93e2-33589907e547" x="1" y="0" width="50" height="14"/>
+					<textElement>
+						<font fontName="Times New Roman"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{asignacion}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="7" splitType="Stretch">
+			<line>
+				<reportElement uuid="82578a45-4f09-44c1-b42e-83cec6023d89" positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement uuid="ce31f8e0-2e52-40a1-b098-c2b7db51398d" mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#000066"/>
+				<textField evaluationTime="Report">
+					<reportElement uuid="13e0a2db-ccad-4256-816c-ba190a95db29" style="Column header" x="481" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="23233910-bcf8-4403-9ae1-e1c041462356" style="Column header" x="401" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Pagina"+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement uuid="2dc206b2-f19f-4abd-888c-897d2d812ce3" style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

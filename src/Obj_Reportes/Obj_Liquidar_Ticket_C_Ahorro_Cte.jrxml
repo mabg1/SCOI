@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Ticket_C_Ahorro_Cte" language="groovy" pageWidth="210" pageHeight="760" columnWidth="210" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="c5d3ef7e-2023-4702-a5da-9686000435e0">
+	<property name="ireport.zoom" value="2.5937424601000036"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="144"/>
+	<queryString>
+		<![CDATA[exec sp_tickets_abonos_c_ahorro_cte 'SV0000000001']]>
+	</queryString>
+	<field name="folio_cliente" class="java.lang.Integer"/>
+	<field name="cliente" class="java.lang.String"/>
+	<field name="ticket" class="java.lang.String"/>
+	<field name="folio_abono" class="java.lang.String"/>
+	<field name="fecha_abono" class="java.sql.Timestamp"/>
+	<field name="fecha_ticket" class="java.lang.String"/>
+	<field name="fecha_limite" class="java.lang.String"/>
+	<field name="cantidad" class="java.math.BigDecimal"/>
+	<field name="empleado" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="domicilio" class="java.lang.String"/>
+	<field name="razon_social" class="java.lang.String"/>
+	<field name="rfc" class="java.lang.String"/>
+	<field name="telefono" class="java.lang.String"/>
+	<variable name="total_de_acumulado" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="69" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="262033e6-86e8-4771-b797-ca370a253687" x="14" y="30" width="142" height="30"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Liquidar Cuenta]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="47413b4a-267c-4dfd-a4fd-8d33d7def7c6" x="156" y="27" width="45" height="41" isPrintInFirstWholeBand="true"/>
+				<imageExpression><![CDATA["C:\\SCOI\\imagen\\ticket_ahorro_cte.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="59" splitType="Stretch">
+			<textField>
+				<reportElement uuid="3aa3aab4-32dc-4cf2-b74a-fee280d35567" x="12" y="8" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TIENDA:  "+$F{establecimiento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="da9ad3d4-6629-427d-ade0-18b805aba331" x="106" y="41" width="95" height="14"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha: "+$F{fecha_abono}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="36b97f23-5b20-424f-a713-b0949da8c63f" x="12" y="0" width="189" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{razon_social}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="4a14144b-4133-4903-abe3-031729e6fd94" x="12" y="16" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{domicilio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="82407f77-82ee-43a1-92f1-6ddd840947ea" x="106" y="16" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RFC: "+$F{rfc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="c22c7d43-c92d-43e0-b35f-c40f2d58afd2" x="12" y="41" width="95" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TICKET: "+$F{ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="aebed2fe-f22e-417a-a478-c76472571c33" x="106" y="50" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["TEL.: "+$F{telefono}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="6969ade5-8d0d-49eb-ad70-6fc5661851f0" x="106" y="8" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ELDORADO, SINALOA.]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="8256ae84-b19b-4dab-a85b-4f31bda4c8aa" x="106" y="28" width="95" height="9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha Limite: "+$F{fecha_limite}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="f5b3c745-9d7f-49e3-a730-9ba5e2b4110b" x="12" y="28" width="95" height="9"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fecha Inicial: "+$F{fecha_ticket}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<textField>
+				<reportElement uuid="4d4facdc-8677-4675-b302-f12aa6d89cfd" x="60" y="8" width="141" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="1a6b2305-33d1-4013-a770-0b70e5b1f2e0" x="12" y="8" width="48" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LE ATENDIO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="0d8d0b8b-0447-4e1b-8e6c-693fbe707309" x="47" y="-1" width="19" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["#"+$F{folio_cliente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="8df6bda0-49b5-412a-aeb2-8bb2b3dd50da" x="12" y="-1" width="36" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CLIENTE:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="06e2393b-947a-4bad-a68f-73d87643ca01" x="65" y="-1" width="136" height="10"/>
+				<textElement>
+					<font fontName="Times New Roman" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<summary>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement uuid="af1f42fb-28ec-4b76-800b-18c4abdfc752" x="6" y="71" width="98" height="7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empleado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="e83ea6ea-ef15-41c8-83f1-9c2076171182" x="107" y="71" width="98" height="7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="5"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="dcf0efe9-6cc6-430a-9767-caf5017723cd" x="6" y="70" width="98" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="b0794b45-4b08-4158-b344-cb42d773f317" x="106" y="70" width="98" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="d1602ebe-46aa-493a-90f5-52c41c7880b9" x="10" y="81" width="192" height="42"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<text><![CDATA[Las cuentas de ahorro que se manejan en Supermercado La Competidora deberán ser liquidadas en su totalidad al momento que el cliente desee hacer uso de su saldo disponible, el cliente solo podrá adquirir su saldo en mercancía ya que no se permite regresar efectivo.]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="5cacc831-8ea0-4fad-98bd-f2920c0f0fe5" x="36" y="6" width="134" height="37"/>
+			</rectangle>
+			<staticText>
+				<reportElement uuid="91ae8a9c-5481-470f-adf9-c39a2378544c" x="36" y="6" width="134" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LIQUIDAR CANTIDAD DE:]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement uuid="6f047962-52cb-4fea-bb99-fe6717b31ab2" x="36" y="19" width="134" height="24" forecolor="#FFFFFF" backcolor="#CCCCCC"/>
+			</rectangle>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="016dc841-c8c3-41e9-8a86-1e27ecdde38b" x="36" y="19" width="134" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_de_acumulado}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="d766572a-ff36-476c-b524-8fabc11939e0" x="10" y="0" width="191" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="3c79907c-5ea5-4b43-a276-3e264749d592" mode="Opaque" x="25" y="40" width="153" height="30" forecolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ticket Liquidado]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

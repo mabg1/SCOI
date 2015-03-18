@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Depositos_A_Bancos_Para_Exportar" pageWidth="612" pageHeight="3600" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8029f220-9e71-4f79-977f-3ca107ccf0ce">
+	<property name="ireport.zoom" value="1.6105100000000019"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[Select * from
+(select tb_empleado.folio as Folio,
+        tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno AS Nombre,
+        tb_establecimiento.nombre AS Establecimiento,
+        CASE
+	       WHEN (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1) IS NULL
+		       THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   WHEN (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1) = 0
+			   THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   WHEN ((select tb_diferencia_cortes.cantidad from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1) - (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1)) >= (select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1)
+			   THEN isnull((select tb_diferencia_cortes.descuento from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1),'0')
+		   ELSE isnull(((select tb_diferencia_cortes.cantidad from tb_diferencia_cortes where tb_diferencia_cortes.folio_empleado = tb_empleado.folio AND tb_diferencia_cortes.status=1 AND tb_diferencia_cortes.status_descuento = 1) - (select sum(tb_abono_cortes.descuento) from tb_abono_cortes where tb_abono_cortes.folio_empleado = tb_empleado.folio AND tb_abono_cortes.status = 1)),'0')
+	     END as Cortes,
+	     isnull(tb_deduccion_inasistencia.extra,'0') as D_Extra
+   FROM tb_empleado
+		left join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+		left outer join tb_deduccion_inasistencia on tb_deduccion_inasistencia.folio_empleado=tb_empleado.folio and tb_deduccion_inasistencia.status=1
+		left outer join tb_diferencia_cortes on tb_diferencia_cortes.folio_empleado=tb_empleado.folio and tb_diferencia_cortes.status=1
+		left outer join tb_persecciones_extra on tb_persecciones_extra.folio_empleado=tb_empleado.folio and tb_persecciones_extra.status=1
+		left outer join tb_abono_cortes on tb_abono_cortes.folio_empleado = tb_diferencia_cortes.folio_empleado and tb_abono_cortes.status = 1
+		where tb_empleado.status = 1
+		GROUP BY tb_empleado.folio ,
+			   tb_empleado.nombre + ' '+ tb_empleado.ap_paterno+' '+ tb_empleado.ap_materno ,
+			   tb_establecimiento.nombre ,
+			   tb_diferencia_cortes.descuento ,
+			   tb_diferencia_cortes.cantidad,
+			   tb_deduccion_inasistencia.extra
+		)cortes
+where Cortes.Cortes>0 or D_Extra<0
+order by Nombre asc]]>
+	</queryString>
+	<field name="Folio" class="java.lang.Integer"/>
+	<field name="Nombre" class="java.lang.String"/>
+	<field name="Establecimiento" class="java.lang.String"/>
+	<field name="Cortes" class="java.math.BigDecimal"/>
+	<field name="D_Extra" class="java.math.BigDecimal"/>
+	<columnHeader>
+		<band height="13">
+			<staticText>
+				<reportElement uuid="d3e1071f-67cb-4563-aa57-8f619b02a0e9" x="0" y="0" width="51" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Folio Emp.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="77478a5d-db57-45c9-a1cd-d05cdac85ee7" x="51" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[Nombre]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8f1e0d96-bc59-4d6b-84cb-50f33c140347" x="345" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[Cortes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8757dc45-35bb-418c-84af-87e1080c591e" x="455" y="0" width="100" height="13"/>
+				<textElement/>
+				<text><![CDATA[D_Extra]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement uuid="65d1aa90-71b3-43c7-886f-957c3bae1e63" x="0" y="0" width="51" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Folio}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7797104c-dc59-4b99-8284-a588930e3ff4" x="51" y="0" width="282" height="20"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="454fbe22-a519-42f2-8943-ab1ea76a7d0f" x="345" y="0" width="100" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Cortes}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="a902e6d4-7b62-4e08-b105-c5910509e4c7" x="455" y="0" width="100" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{D_Extra}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

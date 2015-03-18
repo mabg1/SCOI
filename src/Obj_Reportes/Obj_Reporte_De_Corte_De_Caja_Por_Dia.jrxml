@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Obj_Reporte_De_Corte_De_Caja_Sub_Por_Dia" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="1d56e961-6881-4988-869c-b31a2d60d22b">
+	<property name="ireport.zoom" value="2.8531167061100033"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[declare @dias_cortes int
+,@folio_corte varchar(15) set @folio_corte = ('DPII2')
+
+set @dias_cortes=(select count(asignacion) from tb_totales_de_asignaciones_por_fecha where tb_totales_de_asignaciones_por_fecha.folio_corte = @folio_corte)
+
+select  tb_totales_de_asignaciones_por_fecha.folio_corte as folio_corte
+        ,Rank()OVER(order by tb_totales_de_asignaciones_por_fecha.asignacion asc)as id
+        ,tb_totales_de_asignaciones_por_fecha.asignacion
+		,convert(varchar(20),tb_totales_de_asignaciones_por_fecha.fecha,103)as fecha
+		,tb_totales_de_asignaciones_por_fecha.cantidad as cantidad_total_por_dia
+        ,'' as tickets_voucher
+        ,0 as importe_voucher
+        ,0 as retiro_voucher
+        ,@dias_cortes as total_dias_corte
+        ,0 as tiempo_aire
+        ,0 as luz
+        ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as realizo_corte
+from tb_totales_de_asignaciones_por_fecha
+inner join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=tb_totales_de_asignaciones_por_fecha.folio_corte
+inner join tb_empleado on tb_alimentacion_de_cortes.folio_usuario=tb_empleado.folio
+where tb_totales_de_asignaciones_por_fecha.folio_corte = @folio_corte
+
+union
+
+select  tb_vauchers.folio_corte as folio_corte
+        ,0 as id
+        ,tb_vauchers.asignacion
+        ,convert(varchar(20),tb_vauchers.fecha_aut,103) as fecha
+        ,0 as cantidad_total_por_dia
+        ,tb_vauchers.ticket as tickets_voucher
+		,tb_vauchers.importe as importe_voucher
+		,tb_vauchers.retiro as retiro_voucher
+        ,@dias_cortes as total_dias_corte
+        ,0 as tiempo_aire
+        ,0 as luz
+        ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as realizo_corte
+
+from tb_vauchers
+inner join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=tb_vauchers.folio_corte
+inner join tb_empleado on tb_alimentacion_de_cortes.folio_usuario=tb_empleado.folio
+where tb_vauchers.folio_corte = @folio_corte
+
+union
+
+select  tb_tarluz.folio_corte as folio_corte
+        ,0 as id
+        ,tb_tarluz.asignacion
+        ,convert(varchar(20),tb_tarluz.fecha,103) as fecha
+        ,0 as cantidad_total_por_dia
+        ,'' as tickets_voucher
+		,0 as importe_voucher
+		,0 as retiro_voucher
+        ,@dias_cortes as total_dias_corte
+        ,tb_tarluz.tiempo_aire as tiempo_aire
+        ,tb_tarluz.r_luz as luz
+        ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as realizo_corte
+    from tb_tarluz
+inner join tb_alimentacion_de_cortes on tb_alimentacion_de_cortes.folio_corte=tb_tarluz.folio_corte
+inner join tb_empleado on tb_alimentacion_de_cortes.folio_usuario=tb_empleado.folio
+where tb_tarluz.folio_corte = @folio_corte
+
+
+order by fecha asc, asignacion desc]]>
+	</queryString>
+	<field name="folio_corte" class="java.lang.String"/>
+	<field name="id" class="java.lang.Long"/>
+	<field name="asignacion" class="java.lang.String"/>
+	<field name="fecha" class="java.lang.String"/>
+	<field name="cantidad_total_por_dia" class="java.math.BigDecimal"/>
+	<field name="tickets_voucher" class="java.lang.String"/>
+	<field name="importe_voucher" class="java.math.BigDecimal"/>
+	<field name="retiro_voucher" class="java.math.BigDecimal"/>
+	<field name="total_dias_corte" class="java.lang.Integer"/>
+	<field name="tiempo_aire" class="java.math.BigDecimal"/>
+	<field name="luz" class="java.math.BigDecimal"/>
+	<field name="realizo_corte" class="java.lang.String"/>
+	<variable name="Total_Corte" class="java.math.BigDecimal" resetType="Group" resetGroup="Por_Fecha" calculation="Sum">
+		<variableExpression><![CDATA[$F{cantidad_total_por_dia}]]></variableExpression>
+	</variable>
+	<variable name="Total_Vouchers" class="java.math.BigDecimal" resetType="Group" resetGroup="Por_Fecha" calculation="Sum">
+		<variableExpression><![CDATA[$F{importe_voucher}]]></variableExpression>
+	</variable>
+	<variable name="Total_Retiro" class="java.math.BigDecimal" resetType="Group" resetGroup="Por_Fecha" calculation="Sum">
+		<variableExpression><![CDATA[$F{retiro_voucher}]]></variableExpression>
+	</variable>
+	<variable name="Total_Luz" class="java.math.BigDecimal" resetType="Group" resetGroup="Por_Fecha" calculation="Sum">
+		<variableExpression><![CDATA[$F{luz}]]></variableExpression>
+	</variable>
+	<variable name="Total_TA" class="java.math.BigDecimal" resetType="Group" resetGroup="Por_Fecha" calculation="Sum">
+		<variableExpression><![CDATA[$F{tiempo_aire}]]></variableExpression>
+	</variable>
+	<group name="Por_Fecha" isStartNewPage="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{fecha}]]></groupExpression>
+		<groupHeader>
+			<band height="34">
+				<staticText>
+					<reportElement uuid="128064cb-536d-4699-b7af-86d1b4fb6a13" x="53" y="26" width="38" height="8"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[VOUCHER]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="fded55f7-fa38-491e-b8cc-ccb5e3c3656c" x="96" y="26" width="30" height="8"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[IMPORTE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="b7450216-1ca7-43f5-8464-83f4f759c849" x="138" y="26" width="27" height="8"/>
+					<textElement>
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[RETIRO]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="c692d337-1b70-4d64-8d15-6eb236c7007d" x="50" y="15" width="62" height="12"/>
+					<textElement textAlignment="Left">
+						<font size="9" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="e968070d-e0af-4b51-8a78-fe614e75cb1b" x="12" y="15" width="38" height="12"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FECHA:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="9f3f644e-746b-4130-88d0-2153ac0e49ce" x="12" y="3" width="38" height="12"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[CORTE:]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="53288425-d075-4526-ba56-2cb52c3813d1" x="50" y="3" width="62" height="12"/>
+					<textElement textAlignment="Left">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{folio_corte}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="6f07165d-2ee0-4afe-80d0-323596183972" x="116" y="3" width="34" height="12"/>
+					<textElement textAlignment="Right">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tira "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Report">
+					<reportElement uuid="4ea522eb-c161-4eb7-b531-8ce96ef086a4" x="149" y="3" width="16" height="12"/>
+					<textElement>
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="79">
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="4df3ee89-f9b1-4fe8-8709-b2c18d52233b" x="91" y="66" width="79" height="13"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_Corte}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="2d58ca1f-7c8c-41f4-8714-d3c49c45b6cc" x="12" y="66" width="74" height="13"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL CORTE:]]></text>
+				</staticText>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="b067a688-a939-47aa-82ab-a20a20c00bfb" x="100" y="0" width="65" height="13"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_Vouchers}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="6ff6a6c7-66b5-460d-bf71-e2c3a8eb1138" x="12" y="0" width="88" height="13"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL VOUCHERS:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="618b7e45-e57a-4de2-a57f-aa9b22d56691" x="12" y="13" width="88" height="13"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL RETIROS:]]></text>
+				</staticText>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="a19c4702-ad58-4dc9-8bae-918be421eea1" x="100" y="13" width="65" height="13"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_Retiro}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="d3ffa46e-0616-4b0e-8287-4801729e2c38" x="100" y="39" width="65" height="13"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_Luz}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00;-###0.00">
+					<reportElement uuid="401b380f-12a5-44ee-8a4c-6f02f7367cc2" x="100" y="26" width="65" height="13"/>
+					<textElement textAlignment="Right">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Total_TA}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="282663be-7e87-4bdd-bca1-55609ccabd78" x="12" y="26" width="88" height="13"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL TA:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="46cc9d2a-711e-4077-bf73-9abcb5ce4167" x="12" y="39" width="88" height="13"/>
+					<textElement>
+						<font size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TOTAL LUZ:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="31" splitType="Stretch">
+			<textField>
+				<reportElement uuid="b5190d8b-8f64-4018-96eb-7ad16adf4c21" x="26" y="18" width="100" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CORTE POR DIA"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="2" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="9" splitType="Stretch">
+			<textField>
+				<reportElement uuid="e460a3ec-eaa3-4d80-a534-a7bc23c6ba82" x="53" y="0" width="37" height="8"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tickets_voucher}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="936e3715-a584-45b1-8618-67b18b4dc0db" x="90" y="0" width="37" height="8" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Right">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_voucher}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;-###0.00">
+				<reportElement uuid="f19f7359-6bd3-43f2-aa3a-d22ce73ad82a" x="126" y="0" width="39" height="8" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Right">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{retiro_voucher}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="10" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="2" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="2" splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Reporte_De_Impresion_De_Vacaciones" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="cea9c111-1192-433c-b61e-7057342881f8">
+	<property name="ireport.zoom" value="1.2100000000000046"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="315"/>
+	<queryString>
+		<![CDATA[declare @dia_descanso int,@horario int,@contador_ciclo int,@dias_de_los_anios_vacaciones int,@folio_empleado int,@dias_de_descanso int
+
+-------------------------------------
+,@folio_vacaciones int set @folio_vacaciones=5
+-------------------------------------
+set @contador_ciclo=0
+set @dias_de_descanso=0
+set @folio_empleado=(select folio_empleado from tb_tabla_alimentacion_de_vacaciones where folio_vacaciones=@folio_vacaciones)
+----------------HORARIO
+    SET @horario= (select case when (select status_h1 from tb_empleado where folio=@folio_empleado)=1
+                                         then (select horario from tb_empleado where folio=@folio_empleado)
+                                      when (select status_h2 from tb_empleado where folio=@folio_empleado)=1
+                                         then (select horario2 from tb_empleado where folio=@folio_empleado)
+                                      when (select status_h3 from tb_empleado where folio=@folio_empleado)=1
+                                         then (select horario3 from tb_empleado where folio=@folio_empleado)end);
+ ----DIA DE DESCANSO
+set @dia_descanso=(select tb_horarios.descanso from tb_horarios where tb_horarios.folio=@horario)
+ ----DIAS DE VACACIONES ANTES DE LOS DESCANSOS
+set @dias_de_los_anios_vacaciones = (select dias_corresponden from tb_tabla_vacaciones_rangos
+                                       where folio_grupo_de_vacaciones=(select folio_grupo_de_vacaciones from tb_empleado where  folio=@folio_empleado)
+                                             and años_trabajados=(select anios_trabajados from tb_tabla_alimentacion_de_vacaciones where folio_vacaciones=@folio_vacaciones))
+while @contador_ciclo<@dias_de_los_anios_vacaciones
+   begin
+        --SE LE AGREGA UN DIA MAS POR CADA DIA DE DESCANSO EN EL PERIODO DE VACACIONES
+         IF(select datepart(dw,(select fecha_inicio from tb_tabla_alimentacion_de_vacaciones where folio_vacaciones=@folio_vacaciones)+@contador_ciclo) )=@dia_descanso
+          BEGIN SET @dias_de_descanso=@dias_de_descanso+1 END
+        set @contador_ciclo=@contador_ciclo+1
+   end
+
+select   tb_tabla_alimentacion_de_vacaciones.folio_vacaciones
+        ,tb_tabla_alimentacion_de_vacaciones.folio_empleado
+        ,tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno as nombre
+        ,tb_establecimiento.nombre as establecimiento
+        ,tb_departamento.departamento as departamento
+        ,tb_puesto.nombre as puesto
+        ,convert(varchar(20),tb_empleado.fecha_ingreso,103)as fecha_de_ingreso
+        ,convert(varchar(20),fecha_inicio,103)as fecha_inicio_vacaciones
+        ,convert(varchar(20),fecha_final-1,103)as fecha_final_de_vacaciones
+        ,convert(varchar(20),fecha_final,103)as fecha_regreso_de_vacaciones
+        ,tb_tabla_alimentacion_de_vacaciones.anios_trabajados
+        ,tb_tabla_alimentacion_de_vacaciones.total_dias_de_descanso as dias_de_descanso
+        ,tb_tabla_vacaciones_rangos.dias_corresponden-@dias_de_descanso as dias_corresponden
+        ,tb_tabla_alimentacion_de_vacaciones.total_dias_de_descanso+tb_tabla_alimentacion_de_vacaciones.total_dias_de_vacaciones as dias_totales_inc_descansos
+        ,(tb_tabla_vacaciones_rangos.prima_vacacional*100) as porcentaje_prima_vacacional
+        ,tb_tabla_alimentacion_de_vacaciones.importe_vacaciones_nc as importe_vacaciones
+        ,tb_tabla_alimentacion_de_vacaciones.importe_prima_vacacional_nc as importe_prima_vacacional
+        ,tb_tabla_alimentacion_de_vacaciones.importe_infonavit as importe_infonavit
+        ,tb_tabla_alimentacion_de_vacaciones.importe_sueldo_semana_nc as sueldo_semana
+        ,tb_tabla_alimentacion_de_vacaciones.importe_corte_de_caja as corte_de_caja
+        ,tb_tabla_alimentacion_de_vacaciones.importe_fuente_de_sodas as fuente_de_sodas
+	    ,tb_tabla_alimentacion_de_vacaciones.importe_prestamo as prestamo
+        ,tb_tabla_alimentacion_de_vacaciones.importe_pension_alimenticia as pension_alimenticia
+	    ,tb_tabla_alimentacion_de_vacaciones.total as total
+        ,convert(varchar(20),tb_tabla_alimentacion_de_vacaciones.fecha,103) as fecha_de_guardado
+        ,(tb_tabla_alimentacion_de_vacaciones.importe_vacaciones_nc/tb_tabla_alimentacion_de_vacaciones.total_dias_de_vacaciones) as sueldo_diario_nc
+        ,tb_tabla_alimentacion_de_vacaciones.salario_diarioc as sueldo_diario_c
+        ,tb_tabla_alimentacion_de_vacaciones.importe_vacacionesc
+        ,tb_tabla_alimentacion_de_vacaciones.importe_prima_vacacionalc
+        ,tb_tabla_alimentacion_de_vacaciones.importe_sueldo_semanac
+        ,tb_tabla_alimentacion_de_vacaciones.gratificacion
+        ,(select tb_empleado.nombre+' '+tb_empleado.ap_paterno+' '+tb_empleado.ap_materno from tb_empleado where folio=(select usuario from tb_tabla_alimentacion_de_vacaciones where folio_vacaciones=@folio_vacaciones)) as usuario_creacion
+        ,tb_tabla_alimentacion_de_vacaciones.importe_dias_de_descanso as importe_de_dias_de_descanso
+
+
+    from tb_tabla_alimentacion_de_vacaciones
+inner join tb_empleado on tb_empleado.folio=tb_tabla_alimentacion_de_vacaciones.folio_empleado
+left outer join tb_establecimiento on tb_establecimiento.folio=tb_empleado.establecimiento_id
+left outer join tb_departamento on tb_departamento.folio=tb_empleado.departamento
+left outer join tb_puesto on tb_puesto.folio=tb_empleado.puesto_id
+inner join tb_tabla_vacaciones_rangos on tb_tabla_vacaciones_rangos.años_trabajados=tb_tabla_alimentacion_de_vacaciones.anios_trabajados and tb_tabla_vacaciones_rangos.folio_grupo_de_vacaciones=tb_empleado.folio_grupo_de_vacaciones
+inner join tb_sueldo on tb_sueldo.folio=tb_empleado.sueldo_id
+where folio_vacaciones=@folio_vacaciones]]>
+	</queryString>
+	<field name="folio_vacaciones" class="java.lang.Integer"/>
+	<field name="folio_empleado" class="java.lang.Integer"/>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="establecimiento" class="java.lang.String"/>
+	<field name="departamento" class="java.lang.String"/>
+	<field name="puesto" class="java.lang.String"/>
+	<field name="fecha_de_ingreso" class="java.lang.String"/>
+	<field name="fecha_inicio_vacaciones" class="java.lang.String"/>
+	<field name="fecha_final_de_vacaciones" class="java.lang.String"/>
+	<field name="fecha_regreso_de_vacaciones" class="java.lang.String"/>
+	<field name="anios_trabajados" class="java.lang.Integer"/>
+	<field name="dias_de_descanso" class="java.lang.Integer"/>
+	<field name="dias_corresponden" class="java.lang.Integer"/>
+	<field name="dias_totales_inc_descansos" class="java.lang.Integer"/>
+	<field name="porcentaje_prima_vacacional" class="java.lang.Double"/>
+	<field name="importe_vacaciones" class="java.math.BigDecimal"/>
+	<field name="importe_prima_vacacional" class="java.math.BigDecimal"/>
+	<field name="importe_infonavit" class="java.math.BigDecimal"/>
+	<field name="sueldo_semana" class="java.math.BigDecimal"/>
+	<field name="corte_de_caja" class="java.math.BigDecimal"/>
+	<field name="fuente_de_sodas" class="java.math.BigDecimal"/>
+	<field name="prestamo" class="java.math.BigDecimal"/>
+	<field name="pension_alimenticia" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="fecha_de_guardado" class="java.lang.String"/>
+	<field name="sueldo_diario_nc" class="java.math.BigDecimal"/>
+	<field name="sueldo_diario_c" class="java.math.BigDecimal"/>
+	<field name="importe_vacacionesc" class="java.math.BigDecimal"/>
+	<field name="importe_prima_vacacionalc" class="java.math.BigDecimal"/>
+	<field name="importe_sueldo_semanac" class="java.math.BigDecimal"/>
+	<field name="gratificacion" class="java.math.BigDecimal"/>
+	<field name="usuario_creacion" class="java.lang.String"/>
+	<field name="importe_de_dias_de_descanso" class="java.math.BigDecimal"/>
+	<title>
+		<band height="725" splitType="Stretch">
+			<textField>
+				<reportElement uuid="8f38aeab-480c-4316-afb5-54beb771b4b9" x="472" y="125" width="83" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_vacaciones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ee7eb7bb-3946-4083-b31a-fe4f48f6dd40" x="114" y="127" width="238" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="fc6971ad-3c32-4b09-b00d-bffc568ef0d9" x="164" y="1" width="210" height="41"/>
+				<textElement>
+					<font size="30" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[ VACACIONES]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="40b7627d-f4ee-4b47-bc3d-65ae0d726eeb" x="114" y="110" width="43" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{folio_empleado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="dc17d7a1-22d0-4bc0-87b7-2243cf6c4047" x="104" y="161" width="161" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{establecimiento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="58b48200-92b5-4763-bbe3-07336e7b9c36" x="94" y="178" width="171" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{departamento}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="8bd7fbe4-91f7-43ad-9d1a-365ad2b7df00" x="49" y="144" width="216" height="15"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{puesto}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="cb8f106d-f4c8-4568-b887-231095dc704c" x="108" y="193" width="62" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_de_ingreso}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="a2111c39-e718-4705-920c-78fc4b663c64" x="468" y="227" width="87" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_inicio_vacaciones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="31e837f0-dd69-45ea-b99b-3b0804215f44" x="109" y="210" width="61" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{anios_trabajados}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="100b7c01-473f-4399-9d79-d6022c39ebd8" x="0" y="110" width="114" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FOLIO DE EMPLEADO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="afca31a0-5edf-415c-84ad-ecc1481b3853" x="0" y="127" width="114" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[NOMBRE COMPLETO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="61832a9d-c729-4eae-bacb-79b4694ead85" x="0" y="144" width="49" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[PUESTO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="2b2d2000-9cb1-4ec0-95db-0ea5e9bd7c8b" x="0" y="161" width="104" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[ESTABLECIMIENTO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6f97a48c-d24a-48c7-8808-ae8207921f01" x="0" y="178" width="94" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[DEPARTAMENTO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="d614e5e7-c58d-4ba2-81e7-2d0b1dcac957" x="0" y="193" width="109" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA DE INGRESO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="110bc264-edc7-482a-a971-7d79fb7cd913" x="304" y="227" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA DE INICIO VACACIONES:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="41dbf7b5-4e67-4efd-89fd-99c4cb915af0" x="304" y="261" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA DE REGRESO VACACIONES:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c8606a39-2061-4a55-909f-3830a4415be5" x="0" y="210" width="108" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[AÑOS TRABAJADOS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="92ca432d-9afe-43e2-8ebb-ab47345df372" x="0" y="227" width="126" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[DIAS CORRESPONDEN:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="275ba4d9-b1cf-4611-a087-e4a2c9da6f15" x="0" y="258" width="129" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[DIAS TOTALES INC DESC:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b5cd64c9-3c4d-4f9d-b520-64cd4707e36b" x="359" y="125" width="113" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FOLIO VACACIONES :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="f41eb438-823c-4124-8cc7-8b5111acfed6" x="359" y="142" width="113" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA DE CREACION:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0020120e-3203-490f-a7a6-f01c2ed318f5" x="427" y="84" width="100" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA IMPRESION:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="9cd12bdb-60d6-4c24-9cea-815df2b619eb" x="472" y="142" width="83" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_de_guardado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="88ad7970-b725-4209-9654-df7ab4e1eec1" x="126" y="227" width="44" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dias_corresponden}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="774ce0d7-aa3e-4079-8fa8-8f2d7105ed34" x="129" y="258" width="41" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dias_totales_inc_descansos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="c325f7ad-6f3d-49d4-aae3-8ea5eef6e611" x="293" y="507" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_vacaciones}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="beaaa6c4-88a8-4358-9896-ee148d39aeed" x="293" y="524" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_prima_vacacional}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="4d75d795-6e9e-4a60-bb98-cf4bbd7a766c" x="293" y="578" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_infonavit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="71a98866-f522-4d85-95d9-c52eafdf5485" x="293" y="561" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sueldo_semana}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="28ac18b2-0785-4b18-9c2b-01bb65b851cd" x="293" y="629" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{corte_de_caja}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="aed34390-f225-4e34-94e2-5cfa4c19cb15" x="293" y="646" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fuente_de_sodas}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="d26fdf5f-c9cc-4067-9e39-c7fe94798dad" x="293" y="612" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prestamo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="be633c63-3e2f-49b2-b525-bcdb1093e229" x="293" y="595" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pension_alimenticia}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="8da7ef55-e691-4f01-a8e7-f91c70678c68" x="127" y="507" width="151" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE VACACIONES :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="446d761d-77b0-4984-be2f-924170806ffc" x="127" y="524" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE PRIMA VACACIONAL:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9bcbf289-a3ef-42bb-b94d-f714f453877e" x="127" y="561" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE SUELDO SEMANA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8f4583d5-e382-4ff0-b051-e9f56bb7607f" x="127" y="578" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-) INFONAVIT:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0893444d-0390-4d1e-908c-58e615a32c9e" x="127" y="595" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)PENSION ALIMENTICIA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a4207067-5f0b-45c4-becd-dcd9415c94c3" x="127" y="612" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)PRESTAMO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="aa906a92-ed03-4844-b584-091a3c95555e" x="127" y="629" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)CORTE DE CAJA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9b78d70d-d86a-47a5-99d6-e32b683b5493" x="127" y="646" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)FUENTE DE SODAS:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.0000">
+				<reportElement uuid="4e255b66-20bf-49be-b174-05bf685f10af" x="293" y="485" width="101" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sueldo_diario_nc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="07102875-a2a3-4c29-acb8-8c45133f4988" x="198" y="485" width="93" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[SUELDO DIARIO :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c896f703-c251-4145-9cd0-ff163b178b93" x="250" y="664" width="41" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[TOTAL:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="799e13fc-60e5-4992-a133-6ad481ba5a83" x="304" y="244" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[FECHA FINAL DE VACACIONES:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="3c4539c6-5b15-4e68-9c67-cef95e4e66a1" x="468" y="244" width="87" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_final_de_vacaciones}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="0abc0884-f55b-436a-b3ec-90919889d29e" x="468" y="261" width="87" height="17"/>
+				<textElement>
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha_regreso_de_vacaciones}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="3b928cf8-d457-479a-abc7-d2956f36d56e" x="193" y="288" width="93" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[SUELDO DIARIO C:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="834d4b01-3091-4c6a-8c25-5ba7581bcb87" x="288" y="288" width="100" height="17"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sueldo_diario_c}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="04a623ef-ff97-48d8-bd6f-6af03023a199" x="122" y="305" width="151" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE VACACIONES :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="4905ef37-a2e5-4d4d-9961-1c1c6912d1a8" x="288" y="305" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_vacacionesc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="aa3e2aa8-98f2-46d9-8e9d-085fb3bf41a0" x="122" y="322" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE PRIMA VACACIONAL:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="642c9b4e-ee60-431f-a7f3-a759b58d68ff" x="288" y="322" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_prima_vacacionalc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="1227a4d1-2676-4ad2-a2b0-9b9653fe0842" x="122" y="357" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE SUELDO SEMANA:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="775ba680-69d8-4131-a9f1-d0d281854b2b" x="288" y="357" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_sueldo_semanac}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5e5b01ef-64c3-46c3-9958-f033cc41ee32" x="122" y="374" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-) INFONAVIT:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bbbcfa76-b990-4b98-92b0-01d4169532ea" x="122" y="391" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)PENSION ALIMENTICIA:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ee7517e0-3576-4ae8-9a08-6057e7ac17f7" x="122" y="408" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)PRESTAMO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="efdd8184-a3c3-4206-b125-1635f435eb95" x="122" y="425" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(-)CORTE DE CAJA:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="24dd7149-d8d0-42d7-989a-0cd2b637432a" x="281" y="704" width="268" height="20"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["D.H.:"+$F{usuario_creacion}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="8879aeda-a758-4b8c-9eea-7bd690398f2f" x="288" y="374" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_infonavit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="73eecbd7-d28d-49ac-a804-2800f6f03a49" x="288" y="391" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pension_alimenticia}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="22faa4ac-3678-41ca-9025-ad7a2ecab91a" x="288" y="408" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prestamo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="9bf411f0-d029-4118-96ae-26bb837f6456" x="288" y="425" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{corte_de_caja}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="b04d3039-6187-4d7a-8b2d-62957fdbb33d" x="288" y="442" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gratificacion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5d2ee537-3e37-4246-bea4-ac4bc4992e8d" x="122" y="442" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[(+)GRATIFICACION:]]></text>
+			</staticText>
+			<line>
+				<reportElement uuid="a578f79c-44c4-46b7-80a3-592985df8d4c" x="281" y="702" width="268" height="1"/>
+			</line>
+			<line>
+				<reportElement uuid="094ab2db-333f-44e2-b9f6-25d3e66421ec" x="0" y="702" width="213" height="1"/>
+			</line>
+			<staticText>
+				<reportElement uuid="3a9fdfc9-4db0-4451-9a7f-ba89f9c01b26" x="0" y="704" width="213" height="17"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[REVISO CONTABILIDAD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="62518c2f-d5ca-4ea8-93a0-e9d207cdaeed" x="127" y="542" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE DIAS DE DESCANSO:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="43f02ddc-c755-42fe-8905-1f9052ea24d7" x="0" y="244" width="126" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[DIAS DE DESCANSO:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="67e52a6a-2805-4010-b9b3-2b5dabb25ed1" x="126" y="244" width="44" height="17"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="12" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dias_de_descanso}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="ff6d8deb-d001-423a-b39a-e3f84fc4f71f" x="293" y="539" width="101" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_de_dias_de_descanso}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement uuid="ca30eea0-2edd-4b85-b803-44ae51aa344e" x="374" y="101" width="171" height="24"/>
+				<textElement textAlignment="Right">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="535dbbd2-2fb3-426c-903b-41de1ede57cf" x="293" y="661" width="100" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="SansSerif" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_vacaciones}+$F{importe_prima_vacacional}+$F{importe_de_dias_de_descanso}+$F{sueldo_semana}-$F{importe_infonavit}-$F{pension_alimenticia}-$F{prestamo}-$F{corte_de_caja}-$F{fuente_de_sodas}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="58d49304-a4c9-4745-8faa-33e545ef2809" x="122" y="339" width="164" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[IMPORTE DIAS DE DESCANSO:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="9f7dc469-3c7b-4754-9df3-10682c65b8e0" x="288" y="339" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dias_de_descanso}*$F{sueldo_diario_c}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b305ad34-2436-44b5-ac3e-db896395a490" x="245" y="459" width="41" height="17"/>
+				<textElement>
+					<font size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[TOTAL:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement uuid="bee9a566-28c8-4753-90ec-66af304d5ab8" x="288" y="459" width="100" height="17"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{importe_vacacionesc}+$F{importe_prima_vacacionalc}+($F{dias_de_descanso}*$F{sueldo_diario_c})+$F{importe_sueldo_semanac}-$F{importe_infonavit}-$F{pension_alimenticia}-$F{prestamo}-$F{corte_de_caja}+$F{gratificacion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

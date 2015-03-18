@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="83d77114-a064-46d3-9461-753221457674">
+	<property name="ireport.zoom" value="1.771561000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="44"/>
+	<queryString>
+		<![CDATA[declare @folio_abono varchar(30)
+,@folio varchar(30),@transaccion int
+--set @folio='S5-1707527' set @transaccion=38
+
+set @folio='FI290379' set @transaccion=37
+
+IF @transaccion=38
+  BEGIN
+    select  autorizaciones_bancarias.folio as Ticket
+			,equipos_perifericos.borrar as Afiliacion
+			,autorizaciones_bancarias.numero_tarjeta as Numero_Tarjeta
+			,autorizaciones_bancarias.fecha_expiracion as Fecha_Expiracion
+			,autorizaciones_bancarias.codigo_autorizacion as Codigo_Autorizacion
+			,autorizaciones_bancarias.Tipo_tarjeta as Tipo_de_Tarjeta
+			,autorizaciones_bancarias.banco_emisor as Banco_Emisor
+			,autorizaciones_bancarias.tipo_operacion as Tipo_Operacion
+			,autorizaciones_bancarias.fecha_autorizacion as Fecha_Autorizacion
+			,autorizaciones_bancarias.monto as Importe
+			,autorizaciones_bancarias.tarjetahabiente as Nombre_Tarjetahabiente
+			,(select nombre from cajeros where cajero=(select cajero from facremtick where folio=@folio)) as Cajero
+            ,RTRIM(LTRIM((select calle from establecimientos where cod_estab=(select cod_estab from autorizaciones_bancarias where folio=@folio_abono))))as Domicilio
+ 		from autorizaciones_bancarias
+
+
+			inner join equipos_perifericos_equipo_bms on equipos_perifericos_equipo_bms.equipo_bms=autorizaciones_bancarias.equipo
+			inner join equipos_perifericos on equipos_perifericos.equipo_periferico=equipos_perifericos_equipo_bms.equipo_periferico
+
+			where folio=@folio and equipos_perifericos.tipo_periferico='P'
+  END
+IF @transaccion=37
+  BEGIN
+ SET @folio_abono=(select folio from abonos_clientes where folio_aplicado=@folio)
+
+	select  autorizaciones_bancarias.folio as Ticket
+			,equipos_perifericos.borrar as Afiliacion
+			,autorizaciones_bancarias.numero_tarjeta as Numero_Tarjeta
+			,autorizaciones_bancarias.fecha_expiracion as Fecha_Expiracion
+			,autorizaciones_bancarias.codigo_autorizacion as Codigo_Autorizacion
+			,autorizaciones_bancarias.Tipo_tarjeta as Tipo_de_Tarjeta
+			,autorizaciones_bancarias.banco_emisor as Banco_Emisor
+			,autorizaciones_bancarias.tipo_operacion as Tipo_Operacion
+			,autorizaciones_bancarias.fecha_autorizacion as Fecha_Autorizacion
+			,autorizaciones_bancarias.monto as Importe
+			,autorizaciones_bancarias.tarjetahabiente as Nombre_Tarjetahabiente
+			,(select nombre from turnos_ventas_mostrador where  fecha_inicial <=(select fecha from facremtick where folio=@folio)
+                                                 and fecha_final>=(select fecha from facremtick where folio=@folio)
+                                                and cod_estab=(select cod_estab from facremtick where folio=@folio) ) as Cajero
+            ,RTRIM(LTRIM((select calle from establecimientos where cod_estab=(select cod_estab from autorizaciones_bancarias where folio=@folio_abono))))as domicilio
+		from autorizaciones_bancarias
+			inner join equipos_perifericos_equipo_bms on equipos_perifericos_equipo_bms.equipo_bms=autorizaciones_bancarias.equipo
+			inner join equipos_perifericos on equipos_perifericos.equipo_periferico=equipos_perifericos_equipo_bms.equipo_periferico
+			where folio=@folio_abono and equipos_perifericos.tipo_periferico='P'
+  END]]>
+	</queryString>
+	<field name="Ticket" class="java.lang.String"/>
+	<field name="Afiliacion" class="java.lang.String"/>
+	<field name="Numero_Tarjeta" class="java.lang.String"/>
+	<field name="Fecha_Expiracion" class="java.lang.String"/>
+	<field name="Codigo_Autorizacion" class="java.lang.String"/>
+	<field name="Tipo_de_Tarjeta" class="java.lang.String"/>
+	<field name="Banco_Emisor" class="java.lang.String"/>
+	<field name="Tipo_Operacion" class="java.lang.String"/>
+	<field name="Fecha_Autorizacion" class="java.lang.String"/>
+	<field name="Importe" class="java.math.BigDecimal"/>
+	<field name="Nombre_Tarjetahabiente" class="java.lang.String"/>
+	<field name="Cajero" class="java.lang.String"/>
+	<field name="domicilio" class="java.lang.String"/>
+	<title>
+		<band height="317" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="984f51f0-15a6-4137-93dc-fbbaa3412f7d" x="76" y="0" width="73" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BANORTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1706d01c-aa87-4b52-9b20-f92ea3d35904" x="94" y="18" width="38" height="14"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[VENTA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="16856e63-313f-45a0-b486-4f18044608f1" x="13" y="32" width="194" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SUPERMERCADO LA COMPETIDORA S.A. DE C.V.]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="c338a22c-6f26-4b93-b123-8a24ef331973" x="13" y="44" width="194" height="11"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{domicilio}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="be61412b-8d8f-4af6-a60c-807a435c445e" x="13" y="55" width="194" height="12"/>
+				<textElement textAlignment="Center">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[RFC:SCO-931214-857
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="f6164d31-fbfc-41fb-8890-3407587c5b12" x="13" y="67" width="194" height="12"/>
+				<textElement textAlignment="Center">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ELDORADO, SINALOA (6677)- 26-18-48]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6cc47dd8-a2be-4dfe-9172-fb67baf40c98" x="13" y="89" width="69" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No. de Afiliacion:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="649a9188-6cb6-4cb0-bc38-4d78280b331e" x="82" y="89" width="125" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Afiliacion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e4cdf9d4-f82a-49cd-9152-bd3fe4db2661" x="13" y="101" width="63" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No. de Tarjeta:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="ee8ecf5e-0a01-4a6a-b16d-c0efdd3e404b" x="76" y="101" width="131" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Numero_Tarjeta}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="b5fdcdb1-826e-4858-a6a2-ebd0dea7f9a4" x="13" y="113" width="35" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Expira:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="f96a9cca-7357-4e34-ace9-9618c898f003" x="49" y="113" width="158" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Fecha_Expiracion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="497313a0-0279-47ee-b237-1cbb5faa05c1" x="76" y="130" width="67" height="14"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[APROBADA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c2e15ec8-4f95-48e6-a3f0-82a123bae00f" x="13" y="144" width="97" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Codigo de Autorizacion:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="7f7960c3-2ac6-424d-a015-6c97fc3e83ec" x="110" y="144" width="97" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Codigo_Autorizacion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="f2e4f327-c670-4647-b4f5-ba28e284dc22" x="13" y="156" width="63" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tipo de Tarjeta:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c9c2e398-3d37-43f5-92d0-6603d6e6b311" x="13" y="168" width="63" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Banco Emisor:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="0c918e66-cfc1-4c18-9ab4-e00c8b1ec348" x="13" y="180" width="36" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tipo:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5231868c-3cb3-49a1-8790-9e0af9f3be2e" x="13" y="192" width="36" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a1d79517-a9c3-4071-a44b-850f0d2f4069" x="13" y="204" width="63" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Folio del Ticket:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="10674b30-cebe-46cc-9db5-c737bdca19b9" x="13" y="216" width="35" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Importe:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="7beb3bce-7431-40a1-8da8-ffbcc70fac0d" x="13" y="228" width="35" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cajero:]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="c91f0a1b-b493-4344-9658-8fae364d3621" x="76" y="156" width="131" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Tipo_de_Tarjeta}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7e1a2c7e-2f83-43c9-a43f-1346ca628306" x="76" y="168" width="131" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Banco_Emisor}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="118bfa23-0032-4344-b980-33020a9cf92f" x="49" y="180" width="158" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Tipo_de_Tarjeta}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="58740798-39f9-420e-8829-6bed269448e0" x="49" y="192" width="158" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Fecha_Autorizacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="84d6f515-5507-41a5-b8b9-963d33b2376b" x="76" y="204" width="131" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Ticket}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="60f162ec-7085-4b48-84aa-ddd1adf0c641" x="49" y="216" width="158" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Importe}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="17361702-c46a-40d5-83ae-a4e1cb49db44" x="49" y="228" width="158" height="12"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Cajero}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="fcb51198-8fd0-41d1-80b1-c692c4aa717b" x="13" y="272" width="194" height="1"/>
+			</line>
+			<textField>
+				<reportElement uuid="2b67a78d-57a2-45ed-b274-946dbc81786f" x="13" y="273" width="194" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nombre_Tarjetahabiente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="750cb7f7-696c-4262-ba43-7728f60bc263" x="49" y="293" width="118" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[¡GRACIAS POR SU COMPRA!]]></text>
+			</staticText>
+		</band>
+	</title>
+</jasperReport>
