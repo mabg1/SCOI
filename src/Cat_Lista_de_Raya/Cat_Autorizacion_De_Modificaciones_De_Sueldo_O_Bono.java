@@ -31,7 +31,7 @@ import Obj_Principal.Componentes;
 import Obj_Renders.tablaRenderer;
 
 @SuppressWarnings("serial")
-public class Cat_Autorizacion_De_Cambios_De_Sueldo_O_Bono_Por_Auditoria extends JFrame {
+public class Cat_Autorizacion_De_Modificaciones_De_Sueldo_O_Bono extends JFrame {
 	    String Activo ="";
 	    int aceptar_negar=0;
 	    
@@ -76,7 +76,7 @@ public class Cat_Autorizacion_De_Cambios_De_Sueldo_O_Bono_Por_Auditoria extends 
 	    
 	    
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public Cat_Autorizacion_De_Cambios_De_Sueldo_O_Bono_Por_Auditoria(Integer catalogo)	{
+		public Cat_Autorizacion_De_Modificaciones_De_Sueldo_O_Bono(Integer catalogo)	{
 			this.setSize(1024,350);
 			this.setResizable(false);
 			this.setLocationRelativeTo(null);
@@ -339,7 +339,7 @@ public class Cat_Autorizacion_De_Cambios_De_Sueldo_O_Bono_Por_Auditoria extends 
 		public static void main(String args[]){
 			try{
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				new Cat_Autorizacion_De_Cambios_De_Sueldo_O_Bono_Por_Auditoria(1).setVisible(true);
+				new Cat_Autorizacion_De_Modificaciones_De_Sueldo_O_Bono(1).setVisible(true);
 			}catch(Exception e){	}
 		}
 	}
