@@ -67,6 +67,7 @@ public class Cat_Pedido_De_Productos_Sugerido_Cedis extends JFrame{
         }
 		public boolean isCellEditable(int fila, int columna){
     	
+			
                 switch(columna){
                         case 0  : return false; 
                         case 1  : return false; 
@@ -101,7 +102,9 @@ public class Cat_Pedido_De_Productos_Sugerido_Cedis extends JFrame{
 	            java.lang.Boolean.class,
 	            java.lang.String.class, 
 	            java.lang.String.class
-	                
+	          
+	            
+	            
 		};
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Class getColumnClass(int columnIndex) {
@@ -127,6 +130,7 @@ public class Cat_Pedido_De_Productos_Sugerido_Cedis extends JFrame{
 	                    	return false;
 	                    } 
 	            }
+	            
 	             return false;
 	     }
 	};
@@ -199,6 +203,7 @@ public class Cat_Pedido_De_Productos_Sugerido_Cedis extends JFrame{
 		this.setLocationRelativeTo(null);
 		
 		cargar_fecha();
+		
 	}
 	
 	
